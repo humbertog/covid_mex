@@ -2,11 +2,12 @@ library(R2jags)
 library(lubridate)
 library(tidyverse)
 library(RColorBrewer)
+library(parallel)
 
-source("_readData.R")
+source("_00_readData.R")
 
-maxfecha <- as.Date("2020-05-24")
-fecha_pred <- as.Date("2020-05-21")
+maxfecha <- as.Date("2020-05-26")
+fecha_pred <- as.Date("2020-05-23")
 
 covid_fecha_corte <-
   covid %>%
@@ -150,17 +151,17 @@ createJagsData <- function(data_new_cases) {
 jags.data <- createJagsData(new_cases_lag)
 
 t1 <- proc.time()
-modelo2 <- do.call(jags.parallel, list(data = jags.data, 
-                                              model.file="modelo1",
-                                              parameters.to.save=c("NN", "NF", "beta", "beta_w", "p"), 
-                                              DIC=TRUE,
-                                              n.chains=3, n.iter = 200000))
+modelo2 <- jags(data = jags.data, 
+                         model.file="modelo1",
+                         parameters.to.save=c("NN", "beta", "p"), 
+                         DIC=TRUE,
+                         n.chains=3, n.iter = 100000)
 
-modelo3 <- do.call(jags.parallel, list(data = jags.data, 
+modelo3 <- do.call(jags, list(data = jags.data, 
                                        model.file="modelo2",
-                                       parameters.to.save=c("NN", "NF", "beta", "beta_w", "p"), 
+                                       parameters.to.save=c("NN", "p"), 
                                        DIC=TRUE,
-                                       n.chains=3, n.iter = 200000))
+                                       n.chains=3, n.iter = 100000))
 t2 <- proc.time()
 t2 - t1
 
@@ -268,6 +269,7 @@ covid_muertes_estimadas %>%
   scale_fill_brewer(palette="Set1")+
   facet_grid(.~modelo) +
   xlab("fecha") + ylab("número de defunciones") +
+  ylim(0,12000) +
   ggtitle("Subregistro en el número acumulado de defunciones en cada fecha de corte.", 
           subtitle = 
           "El subregistro corresponde a cada fecha de corte.
@@ -275,7 +277,7 @@ La línea negra es número acumulado de defunciones en la última actualización
 El subregistro por debajo de la línea es el subregistro que se contabilizó en fechas posteriores al corte correspondiente.
 El subregistro por encima de la línea es el subregistro estimado y que será contabilizado en fechas posteriores al día de hoy.")
 
-ggsave("subregistro.png", width = 200, height = 200 * 2/3, units = "mm")
+#ggsave("subregistro.png", width = 200, height = 200 * 2/3, units = "mm")
 ggsave("subregistro.png", width = 400, height = 400 * 2/3, units = "mm")
 
 
@@ -321,6 +323,11 @@ summary(lm(log(cumn) ~ lag, data=covid_fecha_def_max_change))
 
 
 
-  
-  
-  
+
+log(2) /  0.0514253
+
+
+log(2) /0.0415621
+
+
+
