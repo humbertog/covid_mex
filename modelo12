@@ -1,0 +1,32 @@
+model{
+  for(i in 1:I) {
+  
+    Y[i, 1:J[i]] ~ dmulti(p[1:J[i]], N[i])
+    
+    N[i] ~ dpois(NN[i] * sum(p[1:J[i] ]))
+  
+    
+  }
+  
+    for (j in 1:Jmax) {
+      p[j] <- pt[j] / sum(pt[])
+    }
+    
+    for (j in 1:Jmax) {
+      pt[j] <- exp(beta * j)
+    }
+
+    beta ~ dnorm(mu, tau)
+
+########## PRIORS:
+  
+
+mu ~ dnorm(0, 1.0E-3)
+tau ~ dgamma(1.0E-3, 1.0E-3)
+
+
+for (i in 1:I) {
+  NN[i] ~  dgamma(1.0E-3, 1.0E-3)
+}
+
+}
