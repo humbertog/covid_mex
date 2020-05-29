@@ -11,8 +11,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-27")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-05-28")
+fecha_min_val <- as.Date("2020-05-28")
 
 
 
@@ -26,7 +26,7 @@ for (ii in 1:length(fechas_val)) {
 
 # Load model estimates
 load(paste("mcmc/maxlag28/", maxfecha, "-model1.RData", sep=""))
-load(paste("mcmc/maxlag28/", maxfecha, "-model12.RData", sep=""))
+load(paste("mcmc/maxlag28/", maxfecha, "-model2.RData", sep=""))
 
 
 

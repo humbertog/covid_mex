@@ -12,12 +12,12 @@ covid_all <- covid
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-27")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-05-28")
+fecha_min_val <- as.Date("2020-05-28")
 
 
-#max_lag <- 28
-max_lag <- 35
+max_lag <- 28
+#max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
@@ -143,7 +143,7 @@ for (ii in 1:length(fechas_val)) {
   
   t1 <- proc.time()
   modelo1 <- do.call(jags, list(data = jags.data, 
-                                model.file="modelo12",
+                                model.file="modelo1",
                                 parameters.to.save=c("NN", "beta", "p"), 
                                 DIC=TRUE,
                                 n.chains=3, n.iter = 100000))
@@ -157,7 +157,7 @@ for (ii in 1:length(fechas_val)) {
   t2 - t1
   
   
-  save(modelo1, file = paste("mcmc/", maxfecha, "-model12.RData", sep=""))
+  save(modelo1, file = paste("mcmc/", maxfecha, "-model1.RData", sep=""))
   save(modelo2, file = paste("mcmc/", maxfecha, "-model2.RData", sep=""))
   
 }

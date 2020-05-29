@@ -11,12 +11,12 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-27")
+fecha_max_val <- as.Date("2020-05-28")
 fecha_min_val <- as.Date("2020-05-12")
 
 
-max_lag <- 28
-#max_lag <- 35
+#max_lag <- 28
+max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
@@ -28,8 +28,8 @@ for (ii in 1:length(fechas_val)) {
   
   
   # Load model estimates
-  load(paste("mcmc/maxlag28/", maxfecha, "-model1.RData", sep=""))
-  load(paste("mcmc/maxlag28/", maxfecha, "-model2.RData", sep=""))
+  load(paste("mcmc/maxlag", max_lag,"/", maxfecha, "-model1.RData", sep=""))
+  load(paste("mcmc/maxlag", max_lag,"/", maxfecha, "-model2.RData", sep=""))
   
   
   # ----------------------------------------------------------------
@@ -82,7 +82,7 @@ N_est <-
 
 covid_fecha_def_max <-
   covid_def %>%
-  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27"))) %>%
+  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-05-28"))) %>%
   group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
   summarise(n=n()) %>%
   arrange(FECHA_ACTUALIZACION) %>%
@@ -92,8 +92,8 @@ covid_fecha_def_max <-
 
 N_est %>% 
   ggplot() +
-  geom_line(aes(fecha, n, group=fecha_pred, colour="estimated")) +
-  geom_line(aes(FECHA_DEF, cumn, colour="observed"), data=covid_fecha_def_max %>% filter(FECHA_ACTUALIZACION == fecha_max_val), size=1) +
+  geom_line(aes(fecha, n, group=fecha_pred, colour="estimated"), alpha=.7) +
+  #geom_line(aes(FECHA_DEF, cumn, colour="observed"), data=covid_fecha_def_max %>% filter(FECHA_ACTUALIZACION == fecha_max_val), size=1, alpha=.7) +
   geom_line(aes(FECHA_DEF, cumn, group=FECHA_ACTUALIZACION, colour="observed"), data=covid_fecha_def_max) +
   facet_grid(.~model) +
   scale_color_brewer(name = "Type",  labels = c("estimated", "observed"),palette="Set1") +
@@ -109,10 +109,10 @@ N_est %>%
         legend.text = element_text(size = 12)
   )
 
-ggsave("2020-05-27-validation.png", width = 180, height = 180 * 2/3, units = "mm")
+ggsave(paste(fecha_max_val, "-validation.png"), width = 180, height = 180 * 2/3, units = "mm")
 
   
-  
+#  
 covid_fecha_def_max <-
   covid_def %>%
   filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-27"))) %>%
