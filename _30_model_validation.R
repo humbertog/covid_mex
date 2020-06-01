@@ -11,12 +11,12 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-28")
+fecha_max_val <- as.Date("2020-05-31")
 fecha_min_val <- as.Date("2020-05-12")
 
 
-#max_lag <- 28
-max_lag <- 35
+max_lag <- 28
+#max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
@@ -58,6 +58,11 @@ for (ii in 1:length(fechas_val)) {
   N_est <- bind_rows(N_est, N_est_ii)
   
 }  
+
+covid_def <- 
+  covid %>% 
+  filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
+  select(-FECHA_INGRESO, -FECHA_SINTOMAS, -RESULTADO)
   
 
 covid_fecha_corte <-
@@ -82,7 +87,7 @@ N_est <-
 
 covid_fecha_def_max <-
   covid_def %>%
-  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-05-28"))) %>%
+  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-05-30"))) %>%
   group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
   summarise(n=n()) %>%
   arrange(FECHA_ACTUALIZACION) %>%
@@ -99,8 +104,8 @@ N_est %>%
   scale_color_brewer(name = "Type",  labels = c("estimated", "observed"),palette="Set1") +
   theme_bw()+
   scale_y_continuous("cumulative deaths", breaks=seq(0,15000,1000), limits = c(0,15000)) +
-  scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-05-31"), by="2 weeks"), 
-               limits=c(as.Date("2020-03-15"), as.Date("2020-05-31")),
+  scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
+               limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
   theme(legend.position = c(.2,.8),
         axis.title= element_text(size=13),
@@ -109,7 +114,7 @@ N_est %>%
         legend.text = element_text(size = 12)
   )
 
-ggsave(paste(fecha_max_val, "-validation.png"), width = 180, height = 180 * 2/3, units = "mm")
+ggsave(paste(fecha_max_val, "-validation.png"), width = 200, height = 180 * 2/3, units = "mm")
 
   
 #  

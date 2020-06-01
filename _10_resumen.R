@@ -2,9 +2,9 @@
 library(tidyverse)
 library(RColorBrewer)
 
-source("_readData.R")
+source("_00_readData.R")
 
-maxfecha <- as.Date("2020-05-19")
+maxfecha <- as.Date("2020-05-31")
 
 
 

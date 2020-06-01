@@ -11,8 +11,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-28")
-fecha_min_val <- as.Date("2020-05-28")
+fecha_max_val <- as.Date("2020-05-31")
+fecha_min_val <- as.Date("2020-05-31")
 
 
 
@@ -160,18 +160,18 @@ covid_muertes_estimadas %>%
   facet_grid(.~modelo) +
   xlab("date of data base") + 
   scale_y_continuous("cumulative deaths", breaks=seq(0,15000,1000), limits = c(0,15000)) +
-  scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-05-31"), by="2 weeks"), 
-               limits=c(as.Date("2020-03-15"), as.Date("2020-05-31")),
+  scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
+               limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
   scale_fill_brewer(name = "Type", labels = c("estimated", "observed"),palette="Set1") +
   theme(legend.position = c(.2,.8),
-        axis.title= element_text(size=13),
-        axis.text = element_text(size=12),
-        legend.title =  element_text(size = 13),
-        legend.text = element_text(size = 12)
+        axis.title= element_text(size=12),
+        axis.text = element_text(size=11),
+        legend.title =  element_text(size = 12),
+        legend.text = element_text(size = 11)
   ) 
 
-ggsave(paste("reportes/subregistro_",maxfecha,".png", sep=""),  width = 200, height = 200 * 2/3, units = "mm")
+ggsave(paste("reportes/subregistro_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
 
 
 }
