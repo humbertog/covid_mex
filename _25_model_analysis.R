@@ -11,8 +11,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-31")
-fecha_min_val <- as.Date("2020-05-31")
+fecha_max_val <- as.Date("2020-06-01")
+fecha_min_val <- as.Date("2020-06-01")
 
 
 
@@ -178,7 +178,7 @@ ggsave(paste("reportes/subregistro_",maxfecha,".png", sep=""),  width = 250, hei
 # ----------------------------------------------------------------
 # Tiempo de duplicación
 # ----------------------------------------------------------------
-fecha_tendencia <- as.Date("2020-05-01")
+fecha_tendencia <- as.Date("2020-05-07")
 
 covid_muertes_estimadas_change <-
   covid_muertes_estimadas %>%
@@ -186,7 +186,7 @@ covid_muertes_estimadas_change <-
   summarise(n=sum(n)) %>%
   group_by() %>%
   filter(modelo=="Model 2") %>%
-  filter(FECHA_ACTUALIZACION >= fecha_tendencia, FECHA_ACTUALIZACION <= "2020-05-21") %>%
+  filter(FECHA_ACTUALIZACION >= fecha_tendencia, FECHA_ACTUALIZACION <= "2020-05-28") %>%
   mutate(lag= as.numeric(FECHA_ACTUALIZACION -fecha_tendencia ))
 
 
@@ -194,12 +194,12 @@ covid_muertes_estimadas_obs <-
   covid_muertes_estimadas %>%
   filter(tipo =="Registradas") %>%
   filter(modelo=="Model 2") %>%
-  filter(FECHA_ACTUALIZACION >= fecha_tendencia, FECHA_ACTUALIZACION <= "2020-05-21")  %>%
+  filter(FECHA_ACTUALIZACION >= fecha_tendencia, FECHA_ACTUALIZACION <= "2020-05-28")  %>%
   mutate(lag= as.numeric(FECHA_ACTUALIZACION -fecha_tendencia ))
 
 covid_fecha_def_max_change <-
   covid_fecha_def_max %>%
-  filter(FECHA_DEF >= fecha_tendencia, FECHA_DEF <= "2020-05-21")  %>%
+  filter(FECHA_DEF >= fecha_tendencia, FECHA_DEF <= "2020-05-28")  %>%
   mutate(lag= as.numeric(FECHA_DEF -fecha_tendencia ))
   
 
@@ -217,10 +217,12 @@ summary(lm(log(cumn) ~ lag, data=covid_fecha_def_max_change))
 
 
 
-log(2) /  0.0514253
+log(2) /  0.0428253
 
 
-log(2) /0.0415621
+log(2) /0.0532089
 
+
+log(2) / 0.0365131
 
 

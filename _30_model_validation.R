@@ -11,7 +11,7 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-05-31")
+fecha_max_val <- as.Date("2020-06-01")
 fecha_min_val <- as.Date("2020-05-12")
 
 
@@ -87,7 +87,7 @@ N_est <-
 
 covid_fecha_def_max <-
   covid_def %>%
-  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-05-30"))) %>%
+  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27","2020-06-01"))) %>%
   group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
   summarise(n=n()) %>%
   arrange(FECHA_ACTUALIZACION) %>%
