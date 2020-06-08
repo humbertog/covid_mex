@@ -11,11 +11,12 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-01")
+fecha_max_val <- as.Date("2020-06-06")
 fecha_min_val <- as.Date("2020-05-12")
 
 
 max_lag <- 28
+#max_lag <- Inf
 #max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
@@ -87,7 +88,7 @@ N_est <-
 
 covid_fecha_def_max <-
   covid_def %>%
-  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27","2020-06-01"))) %>%
+  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-06-03",as.character(fecha_max_val)))) %>%
   group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
   summarise(n=n()) %>%
   arrange(FECHA_ACTUALIZACION) %>%
@@ -103,7 +104,7 @@ N_est %>%
   facet_grid(.~model) +
   scale_color_brewer(name = "Type",  labels = c("estimated", "observed"),palette="Set1") +
   theme_bw()+
-  scale_y_continuous("cumulative deaths", breaks=seq(0,15000,1000), limits = c(0,15000)) +
+  scale_y_continuous("cumulative deaths", breaks=seq(0,30000,2000), limits = c(0,30000)) +
   scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
                limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
@@ -114,17 +115,9 @@ N_est %>%
         legend.text = element_text(size = 12)
   )
 
-ggsave(paste(fecha_max_val, "-validation.png"), width = 200, height = 180 * 2/3, units = "mm")
+ggsave(paste("validacion/", fecha_max_val, "-validation.png", sep=""), width = 200, height = 180 * 2/3, units = "mm")
 
   
 #  
-covid_fecha_def_max <-
-  covid_def %>%
-  filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-27"))) %>%
-  group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
-  summarise(n=n()) %>%
-  arrange(FECHA_ACTUALIZACION) %>%
-  mutate(cumn = cumsum(n))  %>%
-  filter(FECHA_DEF >= "2020-03-15")
-  
+
   

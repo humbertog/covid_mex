@@ -12,10 +12,12 @@ covid_all <- covid
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-01")
-fecha_min_val <- as.Date("2020-06-01")
+fecha_max_val <- as.Date("2020-06-07")
+fecha_min_val <- as.Date("2020-06-06")
 
 
+
+#max_lag <- Inf
 max_lag <- 28
 #max_lag <- 35
 

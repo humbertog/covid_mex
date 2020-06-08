@@ -11,8 +11,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-01")
-fecha_min_val <- as.Date("2020-06-01")
+fecha_max_val <- as.Date("2020-06-07")
+fecha_min_val <- as.Date("2020-05-12")
 
 
 
@@ -25,8 +25,8 @@ for (ii in 1:length(fechas_val)) {
 
 
 # Load model estimates
-load(paste("mcmc/maxlag28/", maxfecha, "-model1.RData", sep=""))
-load(paste("mcmc/maxlag28/", maxfecha, "-model2.RData", sep=""))
+load(paste("mcmc/maxlagInf/", maxfecha, "-model1.RData", sep=""))
+load(paste("mcmc/maxlagInf/", maxfecha, "-model2.RData", sep=""))
 
 
 
@@ -88,6 +88,7 @@ plag %>%
   theme_bw() +
   scale_colour_brewer(palette="Set1") +
   xlab("lag") + ylab("lambda") +
+  xlim(0,80) + ylim(0,.3) + 
   theme(legend.position = c(.7,.7))
 
 ggsave(paste("reportes/laglambda_",maxfecha,".png", sep=""), width = 160, height = 160 * 2/3, units = "mm")
@@ -101,6 +102,7 @@ plag %>%
   geom_line(aes(lag, cump, colour=modelo)) +
   scale_colour_brewer(palette="Set1") +
   xlab("lag") + ylab("lambda") +
+  xlim(0,80) + ylim(0,1) + 
   theme(legend.position = "")
 ggsave(paste("reportes/laglambda_cum_",maxfecha,".png", sep=""), width = 160, height = 160 * 2/3, units = "mm")
 
@@ -159,7 +161,7 @@ covid_muertes_estimadas %>%
   theme_bw() +
   facet_grid(.~modelo) +
   xlab("date of data base") + 
-  scale_y_continuous("cumulative deaths", breaks=seq(0,15000,1000), limits = c(0,15000)) +
+  scale_y_continuous("cumulative deaths", breaks=seq(0,30000,2000), limits = c(0,30000)) +
   scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
                limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
