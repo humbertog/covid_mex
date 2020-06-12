@@ -8,11 +8,13 @@ library(parallel)
 # Load data
 source("_00_readData.R")
 
+
+
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-07")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-06-10")
+fecha_min_val <- as.Date("2020-06-10")
 
 
 
@@ -21,12 +23,13 @@ fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
 for (ii in 1:length(fechas_val)) {
   maxfecha <- fechas_val[ii]
-  fecha_pred <- maxfecha - 3
+  fecha_pred <- maxfecha - 7
 
 
 # Load model estimates
-load(paste("mcmc/maxlagInf/", maxfecha, "-model1.RData", sep=""))
-load(paste("mcmc/maxlagInf/", maxfecha, "-model2.RData", sep=""))
+load(paste("mcmc_defunciones/", maxfecha, "-model1.RData", sep=""))
+load(paste("mcmc_defunciones/", maxfecha, "-model2.RData", sep=""))
+load(paste("mcmc_defunciones/", maxfecha, "-model12.RData", sep=""))
 
 
 
@@ -72,10 +75,18 @@ NN_q975_mod2 <- modelo1$BUGSoutput$summary[paste("NN[", 1:length(NN_mod2), "]", 
 
 ps_mod3 <- modelo2$BUGSoutput$mean$p
 NN_mod3 <- modelo2$BUGSoutput$mean$NN
-NNsd_mod3 <- modelo2$BUGSoutput$sd$NN
 NN_q25_mod3 <- modelo2$BUGSoutput$summary[paste("NN[", 1:length(NN_mod3), "]", sep=""),"2.5%"]
 NN_q975_mod3 <- modelo2$BUGSoutput$summary[paste("NN[", 1:length(NN_mod3), "]", sep=""),"97.5%"]
 
+
+
+as.data.frame(modelo2$BUGSoutput$sims.list$p[sample(3000, 1000),]) %>%
+  mutate(sim=1:1000) %>%
+  gather(key="key", value="value", -sim) %>%
+  arrange(sim) %>%
+  mutate(lag=rep(1:length(ps_mod3), 1000)) %>%
+  ggplot() +
+  geom_point(aes(lag, value, colour=sim), alpha=.1)
 
 # % de casos faltantes en cada actualizacion
 
@@ -87,11 +98,15 @@ plag %>%
   geom_line(aes(lag, plag, colour=modelo)) +
   theme_bw() +
   scale_colour_brewer(palette="Set1") +
-  xlab("lag") + ylab("lambda") +
-  xlim(0,80) + ylim(0,.3) + 
-  theme(legend.position = c(.7,.7))
+  scale_y_continuous("% de casos faltantes que se registraran días después", breaks=seq(0,.125,.025), limits = c(0,.15), labels = scales::percent_format(accuracy = 1)) +
+  scale_x_continuous("días",breaks=seq(0,84,7), limits = c(0,84)) +
+  theme(legend.position = "right",
+        plot.title = element_text(size=12),
+        plot.subtitle = element_text(size=10)) +
+  ggtitle("Porcentaje de defunciones confirmadas faltantes que se registran en días posteriores", 
+          subtitle="Las bases en cada corte tienen un subregistro de casos que serán incluidos en días posteriores\nUn porcentaje del subregistro p1 se agregará 1 día después, p2 2 días después,...")
 
-ggsave(paste("reportes/laglambda_",maxfecha,".png", sep=""), width = 160, height = 160 * 2/3, units = "mm")
+ggsave(paste("reportes_defunciones/laglambda_",maxfecha,".png", sep=""), width = 200, height = 200 * 2/3, units = "mm")
 
 plag %>%
   group_by(modelo) %>%
@@ -101,10 +116,15 @@ plag %>%
   theme_bw() +
   geom_line(aes(lag, cump, colour=modelo)) +
   scale_colour_brewer(palette="Set1") +
-  xlab("lag") + ylab("lambda") +
-  xlim(0,80) + ylim(0,1) + 
-  theme(legend.position = "")
-ggsave(paste("reportes/laglambda_cum_",maxfecha,".png", sep=""), width = 160, height = 160 * 2/3, units = "mm")
+  scale_y_continuous("% acumulado de casos faltantes que se registraran días después", breaks=seq(0,1,.1), limits = c(0,1), labels = scales::percent_format(accuracy = 1)) +
+  scale_x_continuous("días",breaks=seq(0,84,7), limits = c(0,84)) +
+  theme(legend.position = "right",
+        plot.title = element_text(size=12),
+        plot.subtitle = element_text(size=10)) +
+  ggtitle("Porcentaje aPorcentaje acumulado de confirmadas faltantes que se registran en días posteriores", 
+          subtitle="Las bases en cada corte tienen un subregistro de casos que serán incluidos en días posteriores\nUn porcentaje del subregistro p1 se agregará 1 día después, p2 2 días después,...")
+  ggtitle(   ggtitle( ggtitle(
+ggsave(paste("reportes_defunciones/laglambda_cum_",maxfecha,".png", sep=""), width = 200, height = 200 * 2/3, units = "mm")
 
 
 # numero de casos faltantes
@@ -160,9 +180,8 @@ covid_muertes_estimadas %>%
   geom_errorbar(aes(FECHA_ACTUALIZACION, ymin=n-lowint, ymax=n+upint), data=intervalos)+
   theme_bw() +
   facet_grid(.~modelo) +
-  xlab("date of data base") + 
-  scale_y_continuous("cumulative deaths", breaks=seq(0,30000,2000), limits = c(0,30000)) +
-  scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
+  scale_y_continuous("número acumulado de defunciones confirmadas", breaks=seq(0,30000,2000), limits = c(0,30000)) +
+  scale_x_date("fecha de corte", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
                limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
   scale_fill_brewer(name = "Type", labels = c("estimated", "observed"),palette="Set1") +
@@ -171,12 +190,47 @@ covid_muertes_estimadas %>%
         axis.text = element_text(size=11),
         legend.title =  element_text(size = 12),
         legend.text = element_text(size = 11)
-  ) 
+  ) +
+  ggtitle("Estimación de defunciones confirmadas acumulados aún no registrados en cada fecha de corte", 
+          subtitle="La línea negra es el acumulado básandose en la última fecha de corte.\nLa estimación toma como referencia la fecha de defunción de los síntomas.\nLa diferencia entre dos fechas es una aproximación del número de personas que murieron entre esas dos fechas.")
 
-ggsave(paste("reportes/subregistro_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
+  ggsave(paste("reportes_defunciones/subregistro_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
+  
+  
+  covid_muertes_estimadas %>%
+    filter(modelo == "Model 2") %>%
+    filter(FECHA_ACTUALIZACION <= fecha_pred) %>%
+    group_by(modelo, FECHA_ACTUALIZACION) %>%
+    summarise(n=sum(n)) %>%
+    group_by() %>%
+    mutate(nprev = lag(n, order_by = FECHA_ACTUALIZACION)) %>%
+    mutate(n_cambio = n- nprev) %>%
+    ggplot() +
+    geom_col(aes(FECHA_ACTUALIZACION, n_cambio, fill="estimados"))  +
+    geom_col(aes(FECHA_DEF, n, fill="observados"), data=covid_fecha_def_max) +
+    theme_bw() +
+    scale_y_continuous("número de casos confirmados", breaks=seq(0,1500,100), limits = c(0,1500)) +
+    scale_x_date("fecha de aparición de síntomas", breaks = seq.Date(from=as.Date("2020-03-01"), to=as.Date("2020-06-30"), by="2 weeks"), 
+                 limits=c(as.Date("2020-03-01"), as.Date("2020-06-30")),
+                 date_labels = "%m-%d") +
+    scale_fill_brewer(name = "", labels = c("estimados", "observados"), palette="Set1") +
+    ggtitle(paste("Estimación de defunciones confirmadas diarios por fecha de defunción (modelo 2)")) +
+    theme(legend.position = c(.2,.8),
+          axis.title= element_text(size=11),
+          axis.text = element_text(size=11),
+          legend.title =  element_text(size = 11),
+          legend.text = element_text(size = 11),
+          plot.title = element_text(size=13),
+          plot.subtitle = element_text(size=10)
+    ) 
+  
+  ggsave(paste("reportes_defunciones/subregistro_cambio_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
 
 
 }
+
+
+
 # ----------------------------------------------------------------
 # Tiempo de duplicación
 # ----------------------------------------------------------------

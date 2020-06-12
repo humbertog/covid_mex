@@ -11,12 +11,12 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-06")
+fecha_max_val <- as.Date("2020-06-10")
 fecha_min_val <- as.Date("2020-05-12")
 
 
-max_lag <- 28
-#max_lag <- Inf
+#max_lag <- 28
+max_lag <- Inf
 #max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
@@ -25,12 +25,12 @@ fechas_bases <- sort(unique(covid$FECHA_ACTUALIZACION))
 N_est <- tibble()
 for (ii in 1:length(fechas_val)) {
   maxfecha <- fechas_val[ii]
-  fecha_pred <- maxfecha - 3
+  fecha_pred <- maxfecha - 7
   
   
   # Load model estimates
-  load(paste("mcmc/maxlag", max_lag,"/", maxfecha, "-model1.RData", sep=""))
-  load(paste("mcmc/maxlag", max_lag,"/", maxfecha, "-model2.RData", sep=""))
+  load(paste("mcmc_defunciones/",  maxfecha, "-model1.RData", sep=""))
+  load(paste("mcmc_defunciones/",  maxfecha, "-model2.RData", sep=""))
   
   
   # ----------------------------------------------------------------
@@ -115,7 +115,7 @@ N_est %>%
         legend.text = element_text(size = 12)
   )
 
-ggsave(paste("validacion/", fecha_max_val, "-validation.png", sep=""), width = 200, height = 180 * 2/3, units = "mm")
+ggsave(paste("validacion_defunciones/", fecha_max_val, "-validation.png", sep=""), width = 200, height = 180 * 2/3, units = "mm")
 
   
 #  

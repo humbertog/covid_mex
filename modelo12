@@ -3,26 +3,21 @@ model{
   
     Y[i, 1:J[i]] ~ dmulti(p[1:J[i]], N[i])
     
-    N[i] ~ dpois(NN[i] * sum(p[1:J[i] ]))
-  
+    N[i] ~ dpois(NN[i] * sum(p[1:J[i] ]) )
     
   }
   
-    for (j in 1:Jmax) {
-      p[j] <- pt[j] / sum(pt[])
-    }
-    
-    for (j in 1:Jmax) {
-      pt[j] <- exp(beta * j)
-    }
+  for (j in 2:Jmax) {
+    p[j] <- pexp(j, beta) - pexp(j-1, beta)
+  }
+  p[1] <- pexp(1, beta)
 
-    beta ~ dnorm(mu, tau)
+
 
 ########## PRIORS:
   
 
-mu ~ dnorm(0, 1.0E-3)
-tau ~ dgamma(1.0E-3, 1.0E-3)
+beta ~ dgamma(1.0E-4, 1.0E-4)
 
 
 for (i in 1:I) {

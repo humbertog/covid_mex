@@ -12,13 +12,13 @@ covid_all <- covid
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-07")
-fecha_min_val <- as.Date("2020-06-06")
+fecha_max_val <- as.Date("2020-06-10")
+fecha_min_val <- as.Date("2020-06-10")
 
 
 
-#max_lag <- Inf
-max_lag <- 28
+max_lag <- Inf
+#max_lag <- 28
 #max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
@@ -26,7 +26,7 @@ fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
 for (ii in 1:length(fechas_val)) {
   maxfecha <- fechas_val[ii]
-  fecha_pred <- maxfecha - 3
+  fecha_pred <- maxfecha - 7
   
   print(paste("Starting", maxfecha, "----------------------------------"))
   
@@ -111,7 +111,7 @@ for (ii in 1:length(fechas_val)) {
     mutate(wend = ifelse(wday > 5, 1, 0))
   
   
-  
+  #new_cases_lag %>% filter(FECHA_BASE=="2020-05-01") %>% print(n=100)
   # ----------------------------------------------------------------
   # Modelos
   
@@ -155,12 +155,20 @@ for (ii in 1:length(fechas_val)) {
                                 parameters.to.save=c("NN", "p"), 
                                 DIC=TRUE,
                                 n.chains=3, n.iter = 100000))
+  
+  # modelo_test <- do.call(jags, list(data = jags.data,
+  #                               model.file="modelo12",
+  #                               parameters.to.save=c("NN","p", "mu"),
+  #                               DIC=TRUE,
+  #                               n.chains=3, n.iter = 100000))
+  
   t2 <- proc.time()
   t2 - t1
   
   
-  save(modelo1, file = paste("mcmc/", maxfecha, "-model1.RData", sep=""))
-  save(modelo2, file = paste("mcmc/", maxfecha, "-model2.RData", sep=""))
+  save(modelo1, file = paste("mcmc_defunciones/", maxfecha, "-model1.RData", sep=""))
+  save(modelo2, file = paste("mcmc_defunciones/", maxfecha, "-model2.RData", sep=""))
+  # save(modelo_test, file = paste("mcmc_defunciones/", maxfecha, "-modeltest.RData", sep=""))
   
 }
 

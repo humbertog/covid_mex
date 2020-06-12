@@ -1,0 +1,13 @@
+Nota e interpretación:
+
+Los nuevos registros en la base de datos de un día al siguiente incluyen casos confirmados cuyos síntomas ocurrieron en días anteriores (hasta más de un mes). La fecha de los síntomas es importante, ya que es un indicador más preciso sobre el momento en que ocurrió la infección y, por lo tanto, del momento que atraviesa la epidemia. Del total de casos confirmados acumulados faltantes a una fecha dada, se puede calcular la proporción en la que serán incluidos 1 día después, 2 días después, etc. Los modelos estiman los casos aún por registrar sobre el acumulado. Es decir, cuantos casos por registrar con fecha de aparición de síntomas anteriores o iguales a cada fecha de corte se registrarán en los próximos días. 
+
+
+
+En la gráfica de subregistros, la barra azul representa el acumulado registrado en cada fecha de corte; la línea negra el acumulado en la última fecha de corte; y la altura de las barras rojas representan la estimación del número de casos que faltaban por registrar en cada fecha de corte. Entonces, la parte de la barra roja por debajo de la línea negra es el número de casos que fueron registrados entre cada fecha de corte y la última fecha de corte. La parte de la barra roja por encima de la línea negra son los casos que aún faltaría por registrar. 
+
+
+
+El acumulado estimado (barra azul + barra negra) de las primeras fechas de corte es aproximadamente igual al acumulado observado en la última fecha de corte (línea negra). Entonces, la diferencia en el número acumulado entre dos fechas se puede interpretar como el número de casos confirmados que presentan síntomas entre esas dos fechas. 
+
+
