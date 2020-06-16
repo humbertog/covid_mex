@@ -7,13 +7,11 @@ library(MCMCvis)
 source("_00_readData.R")
 
 
-covid_all <- covid
-
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-10")
-fecha_min_val <- as.Date("2020-06-10")
+fecha_max_val <- as.Date("2020-06-15")
+fecha_min_val <- as.Date("2020-06-15")
 
 
 
@@ -30,28 +28,23 @@ for (ii in 1:length(fechas_val)) {
   
   print(paste("Starting", maxfecha, "----------------------------------"))
   
-  covid <- 
-    covid_all %>%
-    filter(FECHA_ACTUALIZACION <= maxfecha) 
-  
-  covid_fecha_corte <-
+  covidt <- 
     covid %>%
-    group_by(FECHA_ACTUALIZACION, RESULTADO2, MUERTO) %>%
-    summarise(n=n())  %>%
-    group_by()
+    filter(FECHA_ACTUALIZACION <= maxfecha) 
+
   
   # ----------------------------------------------------------------
   # Calcula el número de casos nuevos entre una base y otra, tomando como 
   # referencia FECHA_BASE
   
   covid_def <- 
-    covid %>% 
+    covidt %>% 
     filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
     select(-FECHA_INGRESO, -FECHA_SINTOMAS, -RESULTADO)
   
   
   new_cases <- tibble()
-  fechas <- sort(unique(covid$FECHA_ACTUALIZACION))
+  fechas <- sort(unique(covidt$FECHA_ACTUALIZACION))
   fechasl <- fechas[-1]
   for (i in 1:length(fechasl)) {
     f2 <- fechasl[i]
@@ -158,7 +151,7 @@ for (ii in 1:length(fechas_val)) {
   
   # modelo_test <- do.call(jags, list(data = jags.data,
   #                               model.file="modelo12",
-  #                               parameters.to.save=c("NN","p", "mu"),
+  #                               parameters.to.save=c("NN","p", "beta"),
   #                               DIC=TRUE,
   #                               n.chains=3, n.iter = 100000))
   
@@ -168,19 +161,13 @@ for (ii in 1:length(fechas_val)) {
   
   save(modelo1, file = paste("mcmc_defunciones/", maxfecha, "-model1.RData", sep=""))
   save(modelo2, file = paste("mcmc_defunciones/", maxfecha, "-model2.RData", sep=""))
-  # save(modelo_test, file = paste("mcmc_defunciones/", maxfecha, "-modeltest.RData", sep=""))
+  #save(modelo_test, file = paste("mcmc_defunciones/", maxfecha, "-modeltest.RData", sep=""))
   
 }
 
 
 
-
-
-
-
-
-
-
+plot(1:57,jags.data$N, type="l")
 
 
 

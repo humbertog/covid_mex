@@ -8,14 +8,14 @@ library(parallel)
 # Load data
 source("_00_readData.R")
 
-covid <- covid %>% filter(RESULTADO2 == "positivo")
+
 
 
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-10")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-06-15")
+fecha_min_val <- as.Date("2020-06-15")
 
 
 

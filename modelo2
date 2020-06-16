@@ -5,7 +5,6 @@ model{
     
     N[i] ~ dpois(NN[i] * sum(p[1:J[i] ]))
     
-    NF[i] <- NN[i] * (1 -  sum(p[1:J[i] ]))
     
   }
   p[1:Jmax] ~ ddirch(alpha)

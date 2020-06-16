@@ -8,16 +8,16 @@ model{
   }
   
   for (j in 2:Jmax) {
-    p[j] <- pexp(j, beta) - pexp(j-1, beta)
+    p[j] <- exp(-beta * (j-1)) - exp(-beta * j)
   }
-  p[1] <- pexp(1, beta)
+  p[1] <- 1-exp(-beta * 1)
 
 
 
 ########## PRIORS:
   
 
-beta ~ dgamma(1.0E-4, 1.0E-4)
+beta ~ dgamma(1.0E-3, 1.0E-3)
 
 
 for (i in 1:I) {
@@ -25,3 +25,5 @@ for (i in 1:I) {
 }
 
 }
+
+

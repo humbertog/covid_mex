@@ -11,7 +11,7 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-15")
+fecha_max_val <- as.Date("2020-06-12")
 fecha_min_val <- as.Date("2020-05-12")
 
 
@@ -29,8 +29,8 @@ for (ii in 1:length(fechas_val)) {
   
   
   # Load model estimates
-  load(paste("mcmc_defunciones/",  maxfecha, "-model1.RData", sep=""))
-  load(paste("mcmc_defunciones/",  maxfecha, "-model2.RData", sep=""))
+  load(paste("mcmc_positivos/",  maxfecha, "-model1.RData", sep=""))
+  load(paste("mcmc_positivos/",  maxfecha, "-model2.RData", sep=""))
   
   
   # ----------------------------------------------------------------
@@ -62,49 +62,50 @@ for (ii in 1:length(fechas_val)) {
 
 covid_def <- 
   covid %>% 
-  filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
-  select(-FECHA_INGRESO, -FECHA_SINTOMAS, -RESULTADO)
-  
+  filter(RESULTADO2 == "positivo") %>%
+  select(-FECHA_INGRESO,-FECHA_DEF, -RESULTADO)
+
+
 
 covid_fecha_corte <-
   covid %>%
-  filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
+  filter(RESULTADO2 == "positivo") %>%
   filter(FECHA_ACTUALIZACION <= maxfecha) %>%
-  group_by(FECHA_ACTUALIZACION, RESULTADO2, MUERTO) %>%
+  group_by(FECHA_ACTUALIZACION, RESULTADO2) %>%
   summarise(n=n())  %>%
   group_by() %>%
-  select( -MUERTO, -RESULTADO2)
-  
-  
+  select(-RESULTADO2)
+
+
 
 N_est <- N_est %>% left_join(covid_fecha_corte, by=c("fecha" = "FECHA_ACTUALIZACION"))
-  
+
 
 N_est <- 
   N_est %>%
   mutate(n = n.x + n.y)
-  
+
 
 
 covid_fecha_def_max <-
   covid_def %>%
   filter(FECHA_ACTUALIZACION %in% as.Date(c("2020-05-13", "2020-05-20", "2020-05-27", "2020-06-03", "2020-06-10",as.character(fecha_max_val)))) %>%
-  group_by(FECHA_ACTUALIZACION, FECHA_DEF) %>%
+  group_by(FECHA_ACTUALIZACION, FECHA_SINTOMAS) %>%
   summarise(n=n()) %>%
   arrange(FECHA_ACTUALIZACION) %>%
   mutate(cumn = cumsum(n))  %>%
-  filter(FECHA_DEF >= "2020-03-15")
-  
+  filter(FECHA_SINTOMAS >= "2020-03-15")
+
 
 N_est %>% 
   ggplot() +
   geom_line(aes(fecha, n, group=fecha_pred, colour="estimated"), alpha=.7) +
   #geom_line(aes(FECHA_DEF, cumn, colour="observed"), data=covid_fecha_def_max %>% filter(FECHA_ACTUALIZACION == fecha_max_val), size=1, alpha=.7) +
-  geom_line(aes(FECHA_DEF, cumn, group=FECHA_ACTUALIZACION, colour="observed"), data=covid_fecha_def_max) +
+  geom_line(aes(FECHA_SINTOMAS, cumn, group=FECHA_ACTUALIZACION, colour="observed"), data=covid_fecha_def_max) +
   facet_grid(.~model) +
   scale_color_brewer(name = "Type",  labels = c("estimated", "observed"),palette="Set1") +
   theme_bw()+
-  scale_y_continuous("cumulative deaths", breaks=seq(0,30000,2000), limits = c(0,30000)) +
+  scale_y_continuous("cumulative deaths", breaks=seq(0,300000,10000), limits = c(0,300000)) +
   scale_x_date("data base date", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-06-30"), by="2 weeks"), 
                limits=c(as.Date("2020-03-15"), as.Date("2020-06-30")),
                date_labels = "%m-%d") +
@@ -115,9 +116,9 @@ N_est %>%
         legend.text = element_text(size = 12)
   )
 
-ggsave(paste("validacion_defunciones/", fecha_max_val, "-validation.png", sep=""), width = 200, height = 180 * 2/3, units = "mm")
+ggsave(paste("validacion_positivos/", fecha_max_val, "-validation.png", sep=""), width = 200, height = 180 * 2/3, units = "mm")
 
-  
+
 #  
 
-  
+

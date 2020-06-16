@@ -9,22 +9,15 @@ model{
   }
   p[1:Jmax] ~ ddirch(alpha)
 
-
-for (i in 2:I) {
-  NN[i] <- NN[1] + F[i-1]
-  F[i-1] ~ dpois(sum(lambda[1:(i-1)]))
-}  
-
-for (i in 1:(I-1)) {
-  lambda[i] ~ dgamma(1.0E-2, 1.0E-2)
-}
-
-
-
-NN[1] <- 340
+########## PRIORS:
+  
 
 for (j in 1:Jmax) {
   alpha[j] <- 1
+}
+
+for (i in 1:I) {
+  NN[i] ~  dgamma(1.0E-3, 1.0E-3) 
 }
 
 

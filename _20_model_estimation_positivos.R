@@ -6,16 +6,11 @@ library(MCMCvis)
 
 source("_00_readData.R")
 
-
-covid <- covid %>% filter(RESULTADO2 == "positivo")
-
-covid_all <- covid
-
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-10")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-06-15")
+fecha_min_val <- as.Date("2020-06-15")
 
 
 
@@ -32,28 +27,24 @@ for (ii in 1:length(fechas_val)) {
   
   print(paste("Starting", maxfecha, "----------------------------------"))
   
-  covid <- 
-    covid_all %>%
-    filter(FECHA_ACTUALIZACION <= maxfecha) 
-  
-  covid_fecha_corte <-
+  covidt <- 
     covid %>%
-    group_by(FECHA_ACTUALIZACION, RESULTADO2) %>%
-    summarise(n=n())  %>%
-    group_by()
+    filter(FECHA_ACTUALIZACION <= maxfecha) %>%
+    filter(RESULTADO2 == "positivo")
+
   
   # ----------------------------------------------------------------
   # Calcula el número de casos nuevos entre una base y otra, tomando como 
   # referencia FECHA_BASE
   
   covid_def <- 
-    covid %>% 
+    covidt %>% 
     filter(RESULTADO2 == "positivo") %>%
     select(-FECHA_INGRESO,-FECHA_DEF, -RESULTADO)
   
   
   new_cases <- tibble()
-  fechas <- sort(unique(covid$FECHA_ACTUALIZACION))
+  fechas <- sort(unique(covidt$FECHA_ACTUALIZACION))
   fechasl <- fechas[-1]
   for (i in 1:length(fechasl)) {
     f2 <- fechasl[i]
