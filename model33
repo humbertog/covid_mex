@@ -8,21 +8,19 @@ model{
     
   }
     
-    for (j in 2:Jmax) {
-      p[j] <- pweib(j, s, r) -  pweib(j, s, r)
+    for (j in 1:Jmax) {
+      p[j] <- exp( -( (j-1 ) / l)^k ) - exp( -(j / l)^k ) 
     }
-    p[1] <- pweib(1, s, r)
-
-########## PRIORS:
+    
   
-
-  
-  r ~ dgamma(1.0E-2, 1.0E-2)
-  s ~ dgamma(1.0E-2, 1.0E-2)
-
-
   for (i in 1:I) {
     NN[i] ~  dgamma(1.0E-3, 1.0E-3)
   }
+  
+  k ~ dgamma(1.0E-2, 1.0E-2)
+  l ~ dgamma(1.0E-2, 1.0E-2)
+
+
+  
 
 }

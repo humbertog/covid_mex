@@ -3,7 +3,7 @@ library(R2jags)
 library(lubridate)
 library(tidyverse)
 library(RColorBrewer)
-library(MCMCvis)
+
 
 source("_00_readData.R")
 
@@ -12,14 +12,12 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-16")
-fecha_min_val <- as.Date("2020-06-16")
+fecha_max_val <- as.Date("2020-06-17")
+fecha_min_val <- as.Date("2020-05-01")
 
 
+mod <- "model33"
 
-max_lag <- Inf
-#max_lag <- 28
-#max_lag <- 35
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
@@ -30,7 +28,7 @@ for (ii in 1:length(fechas_val)) {
   
   print(paste("Starting", maxfecha, "----------------------------------"))
   
-  load(paste("mcmc_defunciones/", maxfecha, "-model32.RData", sep=""))
+  load(paste("mcmc_def/", mod, "/",  maxfecha, "-", mod, ".RData", sep=""))
   
   
   ps_mod3 <- modelo3$BUGSoutput$mean$p
@@ -54,100 +52,71 @@ for (ii in 1:length(fechas_val)) {
   
   
   
-  covid_def_lag_2 <- 
+  covid_def_lag_2 <-
     covid_def_lag %>%
     group_by(FECHA_DEF, lag) %>%
     summarise(n=n()) %>%
-    group_by()
-  
-  
-  
-  fb <- sort(unique(covid_def_lag_2$FECHA_DEF))
-  lmax <- 1:as.integer(maxfecha - as.Date("2020-04-12"))
-  
-  for (fi in 1:length(fb)) {
-    f <- fb[fi]
-    idx <- which(!(lmax %in% covid_def_lag_2$lag[covid_def_lag_2$FECHA_DEF == f]))
-    covid_def_lag_2 <- bind_rows(covid_def_lag_2, 
-                                 tibble(FECHA_DEF=f, lag=idx, n=0))
-  }
-  
-  
-  covid_def_lag_2 <-
-    covid_def_lag_2 %>%
+    group_by() %>%
     group_by(FECHA_DEF) %>%
     mutate(N=sum(n)) %>%
     group_by() %>%
     arrange(FECHA_DEF, lag)
   
   
+  
   plag <- data.frame(lag=1:length(ps_mod3),p=ps_mod3)
   
+
+  
   # plot
-  covid_def_lag %>%
+  plag_plot <- 
+    covid_def_lag_2 %>%
     filter(lag != 0) %>%
+    group_by(lag) %>%
+    summarise(nn =sum(n), nmean = mean(n)) %>%
+    mutate(pobs = nn /sum(nn), pobs_mean=nmean / sum(nmean)) %>%
+    arrange(lag)
+    
+    
+  lag_q50 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .5])]
+  lag_q75 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .75])]
+  lag_q95 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .95])]
+  
+  plag_plot %>% 
     ggplot(aes(lag)) +
-    geom_histogram(aes(y=..density..,fill="observado"), binwidth = 1, center = 1, alpha=.7) +
+    geom_col(aes(y=pobs_mean,fill="observado"), alpha=.7) +
     geom_line(aes(lag, p,colour="estimado"), data=plag, size=1) +
-    xlim(0,90) +
-    ylim(0,.2) +
+    geom_vline(xintercept = c(lag_q50, lag_q75, lag_q95), colour="blue",linetype="dashed") +
+    annotate(geom="text", x=c(lag_q50, lag_q75, lag_q95)+6, y=c(.2, .18,.16), label=c("<-mediana", "<-cuantil 75", "<-cuantil 95"), colour="blue") +
+    scale_x_continuous("días transcurridos entre las fechas de defuncíon y registro", breaks = seq(0,91,7), 
+                 limits=c(0,91)) +
+    scale_y_continuous("probabilidad", 
+                       breaks=seq(0,.20,.05), 
+                       limits = c(0,.20), 
+                       labels = scales::percent_format(accuracy = 1)) +
     scale_color_manual(name = "", values=c("red"), labels = c("estimado")) +
     scale_fill_manual(name = "", values=c("black"), labels = c( "observado")) +
     theme_bw() +
-    theme(legend.position = c(.2,.8),
-          axis.title= element_text(size=12),
-          axis.text = element_text(size=11),
-          legend.title =  element_text(size = 12),
-          legend.text = element_text(size = 12),
-          plot.title = element_text(size=13),
+    theme(legend.position = c(.8,.55),
+          axis.title= element_text(size=13),
+          axis.text = element_text(size=12),
+          legend.title =  element_blank(),
+          legend.text = element_text(size = 13),
+          plot.title = element_text(size=14),
           plot.subtitle = element_text(size=10)
     )  +
-    ggtitle(paste("Distribución del número de días transcurridos entre la fecha de defunción y la fecha de reporte")) 
+    ggtitle(paste("Retraso en el registro de defunciones confirmadas por COVID-19"),
+            subtitle = paste("Distribución del número de días transcurridos entre las fechas de defunción y de registro\nActualizado el ", as.Date(maxfecha)))
   
-  ggsave(paste("reportes_defunciones/lag_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
+  ggsave(paste("reportes_def/",mod, "/lag_",maxfecha,".png", sep=""),  width = 180, height = 180 * 2/3, units = "mm")
   
-  
-  
-  # plot
-  covid_def_lag %>%
-    filter(lag!=0) %>%
-    group_by(lag) %>%
-    summarise(n=n()) %>%
-    group_by() %>%
-    mutate(cump = cumsum(n / sum(n))) %>%
-    print(n=100)
 
-
-
-    # ggplot(aes(lag)) +
-    # geom_histogram(aes(y=..density..,fill="observado"), binwidth = 1, center = .5, alpha=.7) +
-    # geom_line(aes(lag, p,colour="estimado"), data=plag, size=2) +
-    # xlim(0,90) +
-    # ylim(0,.2) +
-    # scale_color_manual(name = "", values=c("red"), labels = c("estimado")) +
-    # scale_fill_manual(name = "", values=c("black"), labels = c( "observado")) +
-    # theme_bw() +
-    # theme(legend.position = c(.7,.7),
-    #       axis.title= element_text(size=11),
-    #       axis.text = element_text(size=11),
-    #       legend.title =  element_text(size = 11),
-    #       legend.text = element_text(size = 11),
-    #       plot.title = element_text(size=13),
-    #       plot.subtitle = element_text(size=10)
-    # ) +
-    # ggtitle(paste("Distribución del número de días transcurridos entre la fecha de defunción y la fecha de reporte"))
-  #   
-  #   ggsave(paste("reportes_defunciones/lag_cum_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
-  # 
-  
-  covid_max_date <-
-    covid%>%
-    filter(FECHA_ACTUALIZACION == maxfecha) %>%
-    filter(MUERTO ==1,  RESULTADO2=="positivo")
   
   
   covid_cum_death <- 
-    covid_max_date %>%
+    covid%>%
+    filter(FECHA_ACTUALIZACION == maxfecha) %>%
+    filter(MUERTO ==1,  RESULTADO2=="positivo") %>%
     group_by(FECHA_DEF) %>%
     summarise(n=n()) %>%
     group_by()
@@ -187,25 +156,27 @@ for (ii in 1:length(fechas_val)) {
     select(-nq25, -nq975, -npred) %>%
     gather(key="tipo", value="n", -FECHA_DEF) %>%
     ggplot() +
-    geom_col(aes(FECHA_DEF, n, fill=tipo), position="stack") +
-    geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975), data=plot_df)+
+    geom_col(aes(FECHA_DEF, n, fill=tipo), position="stack", alpha=.8) +
+    geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975, colour="black"), data=plot_df)+
     theme_bw() +
     scale_y_continuous("número de defunciones diarias", breaks=seq(0,1000,100), limits = c(0,1000)) +
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-01"), to=as.Date("2020-07-17"), by="2 weeks"), 
                  limits=c(as.Date("2020-03-01"), as.Date("2020-07-17")),
                  date_labels = "%m-%d") +
-    scale_fill_brewer(name = "", labels = c("estimados", "observados"), palette="Set1") +
-    ggtitle(paste("Estimación de defunciones confirmadas diarias por fecha de defunción")) +
-    theme(legend.position = c(.2,.8),
-          axis.title= element_text(size=12),
-          axis.text = element_text(size=11),
-          legend.title =  element_text(size = 12),
-          legend.text = element_text(size = 12),
-          plot.title = element_text(size=13),
+    scale_fill_manual(name = "",  values=c("red", "grey10"), labels = c("estimados", "observados")) +
+    scale_color_manual(name = "", values=c("black"), labels = c("int. de probabilidad de 95%")) +
+    ggtitle(paste("Estimación de defunciones confirmadas diarias por COVID-19", sep=""),
+            subtitle = paste("La estimación toma en cuenta únicamente el retraso en el registro de defunciones\nen las bases de datos de la Dirección General de Epidemiología\nActualizado el",as.Date(maxfecha))) +
+    theme(legend.position = "bottom",
+          axis.title= element_text(size=13),
+          axis.text = element_text(size=12),
+          legend.title =  element_blank(),
+          legend.text = element_text(size = 13),
+          plot.title = element_text(size=14),
           plot.subtitle = element_text(size=10)
-    ) 
+    )  
   
-  ggsave(paste("reportes_defunciones/subregistro_cambio_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
+  ggsave(paste("reportes_def/", mod,"/subregistro_cambio_",maxfecha,".png", sep=""),  width = 180, height = 180 * 2/3, units = "mm")
   
   
   
@@ -243,17 +214,18 @@ for (ii in 1:length(fechas_val)) {
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-08-07"), by="2 weeks"), 
                  limits=c(as.Date("2020-03-15"), as.Date("2020-08-07")),
                  date_labels = "%m-%d") +
-    scale_color_brewer(name = "", labels = c("observados", "estimados"), palette="Set1") +
-    ggtitle(paste("Estimación de defunciones acumuladas por COVIDD-19 por fecha de defunción")) +
-    theme(legend.position = c(.2,.8),
-          axis.title= element_text(size=12),
-          axis.text = element_text(size=11),
-          legend.title =  element_text(size = 12),
-          legend.text = element_text(size = 12),
-          plot.title = element_text(size=13),
+    scale_color_manual(name = "",  values=c("black", "red"), labels = c("observados", "estimados")) +
+    ggtitle(paste("Estimación de defunciones confirmadas acumuladas por COVID-19", sep=""),
+            subtitle = paste("La estimación toma en cuenta únicamente el retraso en el registro de defunciones\nen las bases de datos de la Dirección General de Epidemiología\nActualizado el",as.Date(maxfecha))) +
+    theme(legend.position = "bottom",
+          axis.title= element_text(size=13),
+          axis.text = element_text(size=12),
+          legend.title =  element_blank(),
+          legend.text = element_text(size = 13),
+          plot.title = element_text(size=14),
           plot.subtitle = element_text(size=10)
-    ) 
-  ggsave(paste("reportes_defunciones/subregistro_",maxfecha,".png", sep=""),  width = 250, height = 250 * 2/3, units = "mm")
+    )  
+  ggsave(paste("reportes_def/",mod, "/subregistro_",maxfecha,".png", sep=""),  width = 180, height = 180 * 2/3, units = "mm")
     
 }
 

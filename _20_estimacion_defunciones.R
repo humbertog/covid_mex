@@ -3,7 +3,6 @@ library(R2jags)
 library(lubridate)
 library(tidyverse)
 library(RColorBrewer)
-library(MCMCvis)
 
 source("_00_readData.R")
 
@@ -12,14 +11,10 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-16")
-fecha_min_val <- as.Date("2020-06-16")
+fecha_max_val <- as.Date("2020-06-17")
+fecha_min_val <- as.Date("2020-06-17")
 
-
-
-max_lag <- Inf
-#max_lag <- 28
-#max_lag <- 35
+mod <- "model32"
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
@@ -101,14 +96,19 @@ for (ii in 1:length(fechas_val)) {
   
   jags.data <- createJagsData(covid_def_lag_2)
   
+  if (mod == "model32") {
+    est_params <- c("NN", "p")
+  } else if(mod == "model33") {
+    est_params <- c("NN", "p", "l", "k")
+  }
   
   modelo3 <- do.call(jags, list(data = jags.data, 
-                                model.file="modelo1",
-                                parameters.to.save=c("NN", "p", "beta"), 
+                                model.file=mod,
+                                parameters.to.save=est_params, 
                                 DIC=TRUE,
                                 n.chains=3, n.iter = 100000))
   
   
-  save(modelo3, file = paste("mcmc_defunciones/", maxfecha, "-model31.RData", sep=""))
+  save(modelo3, file = paste("mcmc_def/",mod,"/", maxfecha, "-",mod,".RData", sep=""))
 }
 
