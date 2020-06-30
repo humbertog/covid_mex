@@ -3,8 +3,9 @@ model{
   
     Y[i, 1:J[i]] ~ dmulti(p[1:J[i]], N[i])
     
-    N[i] ~ dpois(NN[i] * sum(p[1:J[i] ]))
-  
+    N[i] ~ dpois(NN[i] * sum(p[1:J[i]]))
+    
+
     
   }
   

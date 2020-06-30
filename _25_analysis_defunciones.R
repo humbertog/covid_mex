@@ -12,16 +12,15 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-17")
-fecha_min_val <- as.Date("2020-05-01")
+fecha_max_val <- as.Date("2020-06-29")
+fecha_min_val <- as.Date("2020-06-29")
 
+fecha_min_fit <- as.Date("2020-04-12")
 
-mod <- "model33"
+mod <- "model32"
 
 
 fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
-
-
 for (ii in 1:length(fechas_val)) {
   maxfecha <- fechas_val[ii]
   fecha_pred <- maxfecha - 7
@@ -43,8 +42,8 @@ for (ii in 1:length(fechas_val)) {
     covid %>% 
     filter(FECHA_ACTUALIZACION <= maxfecha) %>%
     filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
-    filter(FECHA_DEF >= "2020-04-12") %>%
-    filter(FECHA_ACTUALIZACION >= "2020-04-12") %>%
+    filter(FECHA_DEF >= fecha_min_fit) %>%
+    filter(FECHA_ACTUALIZACION >= fecha_min_fit) %>%
     group_by(ID_REGISTRO, FECHA_DEF) %>%
     summarise(FECHA_REG = min(FECHA_ACTUALIZACION)) %>%
     mutate(lag = as.integer(FECHA_REG - FECHA_DEF)) %>%
@@ -60,7 +59,7 @@ for (ii in 1:length(fechas_val)) {
     group_by(FECHA_DEF) %>%
     mutate(N=sum(n)) %>%
     group_by() %>%
-    arrange(FECHA_DEF, lag)
+    arrange(FECHA_DEF, lag) 
   
   
   
@@ -73,7 +72,7 @@ for (ii in 1:length(fechas_val)) {
     covid_def_lag_2 %>%
     filter(lag != 0) %>%
     group_by(lag) %>%
-    summarise(nn =sum(n), nmean = mean(n)) %>%
+    summarise(nn =sum(n), nmean = mean(n),num=n()) %>%
     mutate(pobs = nn /sum(nn), pobs_mean=nmean / sum(nmean)) %>%
     arrange(lag)
     
@@ -94,7 +93,7 @@ for (ii in 1:length(fechas_val)) {
                        breaks=seq(0,.20,.05), 
                        limits = c(0,.20), 
                        labels = scales::percent_format(accuracy = 1)) +
-    scale_color_manual(name = "", values=c("red"), labels = c("estimado")) +
+    scale_color_manual(name = "", values=c("red"), labels = c("ajuste")) +
     scale_fill_manual(name = "", values=c("black"), labels = c( "observado")) +
     theme_bw() +
     theme(legend.position = c(.8,.55),
@@ -134,7 +133,7 @@ for (ii in 1:length(fechas_val)) {
   
   
   
-  results <-tibble(FECHA_DEF=seq(from=as.Date("2020-04-12"), to=fecha_pred, by="1 day"), n = NN_mod3, nq25=NN_mod3-NN_q25_mod3, nq975=NN_q975_mod3-NN_mod3) 
+  results <-tibble(FECHA_DEF=seq(from=fecha_min_fit, to=maxfecha-1, by="1 day"), n = NN_mod3, nq25=NN_mod3-NN_q25_mod3, nq975=NN_q975_mod3-NN_mod3) 
   
   results2 <- 
     results %>%
@@ -151,6 +150,8 @@ for (ii in 1:length(fechas_val)) {
     mutate(faltantes = ifelse(is.na(npred),NA,npred-n)) %>%
     rename(observados=n)
 
+  
+  plot_df[plot_df$FECHA_DEF > fecha_pred,c("nq25", "nq975", "npred", "faltantes")] <- NA
 
   plot_df %>%
     select(-nq25, -nq975, -npred) %>%
@@ -159,7 +160,7 @@ for (ii in 1:length(fechas_val)) {
     geom_col(aes(FECHA_DEF, n, fill=tipo), position="stack", alpha=.8) +
     geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975, colour="black"), data=plot_df)+
     theme_bw() +
-    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1000,100), limits = c(0,1000)) +
+    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1500,100), limits = c(0,1500)) +
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-01"), to=as.Date("2020-07-17"), by="2 weeks"), 
                  limits=c(as.Date("2020-03-01"), as.Date("2020-07-17")),
                  date_labels = "%m-%d") +
@@ -190,9 +191,9 @@ for (ii in 1:length(fechas_val)) {
     plot_df %>%
     select(-observados) %>%
     filter(!is.na(npred)) %>%
-    mutate(cum_pred= cumsum(npred) + plot_cum$cum_obs[plot_cum$FECHA_DEF == "2020-04-12"],
-           cum_up= cumsum(npred + nq975) + plot_cum$cum_obs[plot_cum$FECHA_DEF == "2020-04-12"],
-           cum_down= cumsum(npred-nq25) + plot_cum$cum_obs[plot_cum$FECHA_DEF == "2020-04-12"]
+    mutate(cum_pred= cumsum(npred) + plot_cum$cum_obs[plot_cum$FECHA_DEF == fecha_min_fit],
+           cum_up= cumsum(npred + nq975) + plot_cum$cum_obs[plot_cum$FECHA_DEF == fecha_min_fit],
+           cum_down= cumsum(npred-nq25) + plot_cum$cum_obs[plot_cum$FECHA_DEF == fecha_min_fit]
            )
   
 

@@ -1,4 +1,3 @@
-
 library(R2jags)
 library(lubridate)
 library(tidyverse)
@@ -11,8 +10,11 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-17")
-fecha_min_val <- as.Date("2020-06-17")
+fecha_max_val <- as.Date("2020-06-29")
+fecha_min_val <- as.Date("2020-06-29")
+
+
+fecha_min_fit <- as.Date("2020-04-12")
 
 mod <- "model32"
 
@@ -30,8 +32,8 @@ for (ii in 1:length(fechas_val)) {
     covid %>% 
     filter(FECHA_ACTUALIZACION <= maxfecha) %>%
     filter(MUERTO == 1, RESULTADO2 == "positivo") %>%
-    filter(FECHA_DEF >= "2020-04-12") %>%
-    filter(FECHA_ACTUALIZACION >= "2020-04-12") %>%
+    filter(FECHA_DEF >= fecha_min_fit) %>%
+    filter(FECHA_ACTUALIZACION >= fecha_min_fit) %>%
     group_by(ID_REGISTRO, FECHA_DEF) %>%
     summarise(FECHA_REG = min(FECHA_ACTUALIZACION)) %>%
     mutate(lag = as.integer(FECHA_REG - FECHA_DEF)) %>%
@@ -48,7 +50,7 @@ for (ii in 1:length(fechas_val)) {
 
   
   fb <- sort(unique(covid_def_lag_2$FECHA_DEF))
-  lmax <- 1:as.integer(maxfecha - as.Date("2020-04-12"))
+  lmax <- 1:as.integer(maxfecha - fecha_min_fit)
   
   for (fi in 1:length(fb)) {
     f <- fb[fi]
@@ -60,12 +62,13 @@ for (ii in 1:length(fechas_val)) {
   
   covid_def_lag_2 <-
     covid_def_lag_2 %>%
+    filter( lag>0) %>%
     group_by(FECHA_DEF) %>%
     mutate(N=sum(n)) %>%
     group_by() %>%
     arrange(FECHA_DEF, lag) %>%
-    filter(FECHA_DEF <= fecha_pred, lag>0) 
-  
+    #filter(FECHA_DEF <= fecha_pred) 
+    filter(FECHA_DEF < maxfecha) 
   
   
   createJagsData <- function(data_new_cases) {
@@ -83,7 +86,7 @@ for (ii in 1:length(fechas_val)) {
         arrange(lag) 
       
       yi <- jd_temp$n 
-      ji <- as.integer(maxfecha - as.Date("2020-04-12")) -i + 1
+      ji <- as.integer(maxfecha - fecha_min_fit) -i + 1
       Y[i, 1:ji] <- yi[1:ji]
       J[i] <- ji
       N[i] <- sum(yi)
@@ -96,10 +99,17 @@ for (ii in 1:length(fechas_val)) {
   
   jags.data <- createJagsData(covid_def_lag_2)
   
-  if (mod == "model32") {
+  jags.data$alpha <- colMeans(jags.data$Y, na.rm = TRUE) 
+  #jags.data$alpha <- colMeans(jags.data$Y / rowSums(jags.data$Y, na.rm = TRUE), na.rm=TRUE)
+  
+  if (mod == "model32" ) {
     est_params <- c("NN", "p")
   } else if(mod == "model33") {
     est_params <- c("NN", "p", "l", "k")
+  }else if(mod == "model31") {
+    est_params <- c("NN", "p", "beta")
+  } else if (mod == "model32_1") {
+    est_params <- c("NN", "p")
   }
   
   modelo3 <- do.call(jags, list(data = jags.data, 
@@ -111,4 +121,6 @@ for (ii in 1:length(fechas_val)) {
   
   save(modelo3, file = paste("mcmc_def/",mod,"/", maxfecha, "-",mod,".RData", sep=""))
 }
+
+
 
