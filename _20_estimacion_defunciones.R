@@ -11,7 +11,7 @@ source("_00_readData.R")
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
 fecha_max_val <- as.Date("2020-06-29")
-fecha_min_val <- as.Date("2020-06-29")
+fecha_min_val <- as.Date("2020-05-12")
 
 
 fecha_min_fit <- as.Date("2020-04-12")
@@ -99,8 +99,15 @@ for (ii in 1:length(fechas_val)) {
   
   jags.data <- createJagsData(covid_def_lag_2)
   
-  jags.data$alpha <- colMeans(jags.data$Y, na.rm = TRUE) 
+  # This is a good best hyperparameter:
+  jags.data$alpha <- colMeans(jags.data$Y, na.rm = TRUE) * 100
+  # This too:
+  #jags.data$alpha <- colSums(jags.data$Y , na.rm=TRUE) 
+  
   #jags.data$alpha <- colMeans(jags.data$Y / rowSums(jags.data$Y, na.rm = TRUE), na.rm=TRUE)
+  #jags.data$alpha <- colSums(jags.data$Y , na.rm=TRUE) / seq(jags.data$Jmax,1) 
+  
+
   
   if (mod == "model32" ) {
     est_params <- c("NN", "p")
@@ -116,11 +123,11 @@ for (ii in 1:length(fechas_val)) {
                                 model.file=mod,
                                 parameters.to.save=est_params, 
                                 DIC=TRUE,
-                                n.chains=3, n.iter = 100000))
+                                n.chains=3, n.iter = 50000))
   
   
   save(modelo3, file = paste("mcmc_def/",mod,"/", maxfecha, "-",mod,".RData", sep=""))
 }
-
+  
 
 

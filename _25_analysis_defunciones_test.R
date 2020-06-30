@@ -13,7 +13,7 @@ source("_00_readData.R")
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
 fecha_max_val <- as.Date("2020-06-29")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_min_val <- as.Date("2020-06-29")
 
 fecha_min_fit <- as.Date("2020-04-12")
 
@@ -51,35 +51,16 @@ for (ii in 1:length(fechas_val)) {
   
   
   
-  covid_def_lag_2 <- 
+  covid_def_lag_2 <-
     covid_def_lag %>%
     group_by(FECHA_DEF, lag) %>%
     summarise(n=n()) %>%
-    group_by()
-  
-  
-  fb <- sort(unique(covid_def_lag_2$FECHA_DEF))
-  lmax <- 1:as.integer(maxfecha - fecha_min_fit)
-  
-  for (fi in 1:length(fb)) {
-    f <- fb[fi]
-    idx <- which(!(lmax %in% covid_def_lag_2$lag[covid_def_lag_2$FECHA_DEF == f]))
-    covid_def_lag_2 <- bind_rows(covid_def_lag_2, 
-                                 tibble(FECHA_DEF=f, lag=idx, n=0))
-  }
-  
-  
-  covid_def_lag_2 <-
-    covid_def_lag_2 %>%
-    filter( lag>0) %>%
+    group_by() %>%
     group_by(FECHA_DEF) %>%
     mutate(N=sum(n)) %>%
     group_by() %>%
-    arrange(FECHA_DEF, lag) %>%
-    #filter(FECHA_DEF <= fecha_pred) 
-    filter(FECHA_DEF < maxfecha) 
+    arrange(FECHA_DEF, lag) 
   
-
   
   
   plag <- data.frame(lag=1:length(ps_mod3),p=ps_mod3)
@@ -92,18 +73,17 @@ for (ii in 1:length(fechas_val)) {
     filter(lag != 0) %>%
     group_by(lag) %>%
     summarise(nn =sum(n), nmean = mean(n),num=n()) %>%
-    mutate(pobs = nn /(num+1-lag), pobs_mean=nmean / sum(nmean)) %>%
-    mutate(pobs = pobs /sum(pobs) ) %>%
+    mutate(pobs = nn /sum(nn), pobs_mean=nmean / sum(nmean)) %>%
     arrange(lag)
     
     
-  lag_q50 <- plag_plot$lag[length(cumsum(plag_plot$pobs)[cumsum(plag_plot$pobs) <= .5])]
-  lag_q75 <- plag_plot$lag[length(cumsum(plag_plot$pobs)[cumsum(plag_plot$pobs) <= .75])]
-  lag_q95 <- plag_plot$lag[length(cumsum(plag_plot$pobs)[cumsum(plag_plot$pobs) <= .95])]
+  lag_q50 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .5])]
+  lag_q75 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .75])]
+  lag_q95 <- plag_plot$lag[length(cumsum(plag_plot$pobs_mean)[cumsum(plag_plot$pobs_mean) <= .95])]
   
   plag_plot %>% 
     ggplot(aes(lag)) +
-    geom_col(aes(y=pobs,fill="observado"), alpha=.7) +
+    geom_col(aes(y=pobs_mean,fill="observado"), alpha=.7) +
     geom_line(aes(lag, p,colour="estimado"), data=plag, size=1) +
     geom_vline(xintercept = c(lag_q50, lag_q75, lag_q95), colour="blue",linetype="dashed") +
     annotate(geom="text", x=c(lag_q50, lag_q75, lag_q95)+6, y=c(.2, .18,.16), label=c("<-mediana", "<-cuantil 75", "<-cuantil 95"), colour="blue") +
