@@ -12,8 +12,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-06-29")
-fecha_min_val <- as.Date("2020-05-12")
+fecha_max_val <- as.Date("2020-07-06")
+fecha_min_val <- as.Date("2020-07-02")
 
 fecha_min_fit <- as.Date("2020-04-12")
 
@@ -180,9 +180,9 @@ for (ii in 1:length(fechas_val)) {
     geom_col(aes(FECHA_DEF, n, fill=tipo), position="stack", alpha=.8) +
     geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975, colour="black"), data=plot_df)+
     theme_bw() +
-    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1500,100), limits = c(0,1500)) +
-    scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-01"), to=as.Date("2020-07-17"), by="2 weeks"), 
-                 limits=c(as.Date("2020-03-01"), as.Date("2020-07-17")),
+    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1000,100), limits = c(0,1000)) +
+    scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-05"), to=as.Date("2020-08-07"), by="2 weeks"), 
+                 limits=c(as.Date("2020-03-15"), as.Date("2020-08-07")),
                  date_labels = "%m-%d") +
     scale_fill_manual(name = "",  values=c("red", "grey10"), labels = c("estimados", "observados")) +
     scale_color_manual(name = "", values=c("black"), labels = c("int. de probabilidad de 95%")) +

@@ -6,7 +6,7 @@ covid <- tibble()
 
 for(f in list.files("datos",include.dirs = FALSE)) {
   fd <- read_csv(paste("datos", f, sep="/"), na=c("9999-99-99"), col_types=cols(PAIS_ORIGEN=col_character())) %>% 
-    select(FECHA_ACTUALIZACION,ID_REGISTRO, FECHA_INGRESO, FECHA_SINTOMAS, FECHA_DEF, RESULTADO)
+    select(FECHA_ACTUALIZACION,ID_REGISTRO, FECHA_INGRESO, FECHA_SINTOMAS, FECHA_DEF, RESULTADO, ENTIDAD_RES)
   covid <- bind_rows(covid, fd)
   
 }

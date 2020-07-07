@@ -4,7 +4,7 @@ library(RColorBrewer)
 
 source("_00_readData.R")
 
-maxfecha <- as.Date("2020-06-27")
+maxfecha <- as.Date("2020-07-02")
 
 
 
@@ -14,6 +14,7 @@ maxfecha <- as.Date("2020-06-27")
 
 covid_fecha_corte <-
   covid %>%
+  #filter(ENTIDAD_RES != "09") %>%
   group_by(FECHA_ACTUALIZACION, RESULTADO2, MUERTO) %>%
   summarise(n=n())  %>%
   group_by()
@@ -39,7 +40,7 @@ covid_fecha_corte %>%
 
 # Totales (defunciones)
 covid_fecha_corte %>%
-  filter(MUERTO ==1,  RESULTADO2 == "sospechoso") %>%
+  filter(MUERTO ==1) %>%
   ggplot() +
   geom_col(aes(FECHA_ACTUALIZACION, n, fill=RESULTADO2)) +
   theme_bw() +
@@ -162,6 +163,7 @@ covid %>%
 
 # N de defunciones por fecha de defuncion
 covid %>%
+  filter(ENTIDAD_RES == "09") %>%
   filter(MUERTO ==1 ) %>%
   filter(FECHA_ACTUALIZACION == maxfecha, FECHA_DEF >= "2020-03-01") %>%
   group_by(FECHA_DEF, RESULTADO2) %>%
