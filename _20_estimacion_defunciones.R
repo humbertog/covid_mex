@@ -10,8 +10,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-07-06")
-fecha_min_val <- as.Date("2020-07-02")
+fecha_max_val <- as.Date("2020-07-30")
+fecha_min_val <- as.Date("2020-07-25")
 
 
 fecha_min_fit <- as.Date("2020-04-12")

@@ -12,8 +12,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-07-06")
-fecha_min_val <- as.Date("2020-07-02")
+fecha_max_val <- as.Date("2020-07-30")
+fecha_min_val <- as.Date("2020-05-25")
 
 fecha_min_fit <- as.Date("2020-04-12")
 
@@ -107,8 +107,8 @@ for (ii in 1:length(fechas_val)) {
     geom_line(aes(lag, p,colour="estimado"), data=plag, size=1) +
     geom_vline(xintercept = c(lag_q50, lag_q75, lag_q95), colour="blue",linetype="dashed") +
     annotate(geom="text", x=c(lag_q50, lag_q75, lag_q95)+6, y=c(.2, .18,.16), label=c("<-mediana", "<-cuantil 75", "<-cuantil 95"), colour="blue") +
-    scale_x_continuous("días transcurridos entre las fechas de defuncíon y registro", breaks = seq(0,91,7), 
-                 limits=c(0,91)) +
+    scale_x_continuous("días transcurridos entre las fechas de defuncíon y registro", breaks = seq(0,120,7), 
+                 limits=c(0,120)) +
     scale_y_continuous("probabilidad", 
                        breaks=seq(0,.20,.05), 
                        limits = c(0,.20), 
@@ -231,7 +231,7 @@ for (ii in 1:length(fechas_val)) {
     # geom_line(aes(FECHA_DEF, cum_up), colour="red", linetype="dotted") +
     # geom_line(aes(FECHA_DEF, cum_down), colour="red", linetype="dotted") +
     theme_bw() +
-    scale_y_continuous("número de defunciones acumuladas", breaks=seq(0,40000,5000), limits = c(0,40000)) +
+    scale_y_continuous("número de defunciones acumuladas", breaks=seq(0,60000,5000), limits = c(0,60000)) +
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-08-07"), by="2 weeks"), 
                  limits=c(as.Date("2020-03-15"), as.Date("2020-08-07")),
                  date_labels = "%m-%d") +
