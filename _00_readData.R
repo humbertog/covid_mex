@@ -1,17 +1,13 @@
 
 
+covid202004 <- readRDS("datos/covid202004.rds")
+covid202005 <- readRDS("datos/covid202005.rds")
+covid202006 <- readRDS("datos/covid202006.rds")
+covid202007 <- readRDS("datos/covid202007.rds")
 
+covid <- bind_rows(covid202004, covid202005, covid202006, covid202007)
 
-covid <- tibble()
-
-for(f in list.files("datos",include.dirs = FALSE)) {
-  fd <- read_csv(paste("datos", f, sep="/"), na=c("9999-99-99"), col_types=cols(PAIS_ORIGEN=col_character())) %>% 
-    select(FECHA_ACTUALIZACION,ID_REGISTRO, FECHA_INGRESO, FECHA_SINTOMAS, FECHA_DEF, RESULTADO, ENTIDAD_RES)
-  covid <- bind_rows(covid, fd)
-  
-}
-
-
+rm("covid202004", "covid202005", "covid202006", "covid202007")
 
 # PREprocessing
 covid$MUERTO <- 0
