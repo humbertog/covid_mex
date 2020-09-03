@@ -4,6 +4,7 @@
 .Ruserdata
 .DS_Store
 covid.Rproj
+covid_mex.Rproj
 plots_PDMX
 datos
 mcmc
