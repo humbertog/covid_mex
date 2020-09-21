@@ -4,7 +4,7 @@ library(RColorBrewer)
 
 source("_00_readData.R")
 
-maxfecha <- as.Date("2020-07-02")
+maxfecha <- as.Date("2020-07-03")
 
 
 

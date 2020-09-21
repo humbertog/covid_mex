@@ -10,8 +10,8 @@ source("_00_readData.R")
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-07-30")
-fecha_min_val <- as.Date("2020-07-25")
+fecha_max_val <- as.Date("2020-09-20")
+fecha_min_val <- as.Date("2020-09-01")
 
 
 fecha_min_fit <- as.Date("2020-04-12")
@@ -119,11 +119,11 @@ for (ii in 1:length(fechas_val)) {
     est_params <- c("NN", "p")
   }
   
-  modelo3 <- do.call(jags, list(data = jags.data, 
+  modelo3 <- do.call(jags.parallel, list(data = jags.data, 
                                 model.file=mod,
                                 parameters.to.save=est_params, 
                                 DIC=TRUE,
-                                n.chains=3, n.iter = 50000))
+                                n.chains=3, n.iter = 40000, n.burnin=20000,n.thin=50))
   
   
   save(modelo3, file = paste("mcmc_def/",mod,"/", maxfecha, "-",mod,".RData", sep=""))

@@ -4,6 +4,8 @@ covid202004 <- readRDS("datos/covid202004.rds")
 covid202005 <- readRDS("datos/covid202005.rds")
 covid202006 <- readRDS("datos/covid202006.rds")
 covid202007 <- readRDS("datos/covid202007.rds")
+covid202007 <- readRDS("datos/covid202008.rds")
+covid202007 <- readRDS("datos/covid202009.rds")
 
 covid <- bind_rows(covid202004, covid202005, covid202006, covid202007)
 
