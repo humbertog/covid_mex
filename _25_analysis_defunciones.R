@@ -5,7 +5,7 @@ library(tidyverse)
 library(RColorBrewer)
 
 
-#source("_00_readData.R")
+# source("_00_readData.R")
 
 
 
@@ -13,7 +13,7 @@ library(RColorBrewer)
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
 fecha_max_val <- as.Date("2020-09-20")
-fecha_min_val <- as.Date("2020-09-20")
+fecha_min_val <- as.Date("2020-05-15")
 
 fecha_min_fit <- as.Date("2020-04-12")
 
@@ -83,7 +83,7 @@ for (ii in 1:length(fechas_val)) {
   
   
   plag <- data.frame(lag=1:length(ps_mod3),p=ps_mod3)
-  
+
 
   
   # plot
@@ -93,7 +93,7 @@ for (ii in 1:length(fechas_val)) {
     group_by(lag) %>%
     summarise(nn =sum(n), nmean = mean(n),num=n()) %>%
     mutate(pobs = nn /(num+1-lag), pobs_mean=nmean / sum(nmean)) %>%
-    mutate(pobs = pobs /sum(pobs) ) %>%
+    mutate(pobs = pobs /sum(pobs, na.rm = TRUE) ) %>%
     arrange(lag)
     
     
@@ -178,9 +178,9 @@ for (ii in 1:length(fechas_val)) {
     gather(key="tipo", value="n", -FECHA_DEF) %>%
     ggplot() +
     geom_col(aes(FECHA_DEF, n, fill=tipo), position="stack", alpha=.8) +
-    geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975, colour="black"), data=plot_df)+
+    geom_errorbar(aes(FECHA_DEF, ymin=observados +faltantes - nq25, ymax=observados +faltantes + nq975, colour="black"), data=plot_df, size=.1)+
     theme_bw() +
-    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1500,250), limits = c(0,1500)) +
+    scale_y_continuous("número de defunciones diarias", breaks=seq(0,1000,250), limits = c(0,1000)) +
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-05"), to=as.Date("2020-12-31"), by="1 month"), 
                  limits=c(as.Date("2020-03-15"), as.Date("2020-12-31")),
                  date_labels = "%m-%d") +
@@ -231,7 +231,7 @@ for (ii in 1:length(fechas_val)) {
     # geom_line(aes(FECHA_DEF, cum_up), colour="red", linetype="dotted") +
     # geom_line(aes(FECHA_DEF, cum_down), colour="red", linetype="dotted") +
     theme_bw() +
-    scale_y_continuous("número de defunciones acumuladas", breaks=seq(0,150000,10000), limits = c(0,150000)) +
+    scale_y_continuous("número de defunciones acumuladas", breaks=seq(0,125000,25000), limits = c(0,125000)) +
     scale_x_date("fecha de defucnión", breaks = seq.Date(from=as.Date("2020-03-15"), to=as.Date("2020-12-15"), by="1 month"), 
                  limits=c(as.Date("2020-03-15"), as.Date("2020-12-15")),
                  date_labels = "%m-%d") +

@@ -11,7 +11,7 @@ source("_00_readData.R")
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
 fecha_max_val <- as.Date("2020-09-20")
-fecha_min_val <- as.Date("2020-09-01")
+fecha_min_val <- as.Date("2020-08-23")
 
 
 fecha_min_fit <- as.Date("2020-04-12")
