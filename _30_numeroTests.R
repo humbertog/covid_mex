@@ -7,7 +7,7 @@ library(stringr)
 
 source("_00_readData.R")
 
-maxfecha <- as.Date("2020-07-02")
+maxfecha <- as.Date("2020-09-20")
 
 
 
@@ -15,15 +15,27 @@ maxfecha <- as.Date("2020-07-02")
 # NUMERO DE CASOS POR FECHA DE CORTE
 # -------------------------------------------------------------------
 
-covid_fecha_corte <-
+covid_fecha_corte1 <-
   covid %>%
-  filter(FECHA_ACTUALIZACION >= "2020-05-01") %>%
+  filter(FECHA_ACTUALIZACION >= "2020-05-01", FECHA_ACTUALIZACION < "2020-08-01") %>%
   filter(RESULTADO2 != "sospechoso") %>%
   group_by(FECHA_ACTUALIZACION, ENTIDAD_RES) %>%
   summarise(n=n())  %>%
   group_by() %>%
   arrange(ENTIDAD_RES) 
 
+
+covid_fecha_corte2 <-
+  covid %>%
+  filter(FECHA_ACTUALIZACION >= "2020-08-01") %>%
+  filter(RESULTADO2 != "sospechoso") %>%
+  group_by(FECHA_ACTUALIZACION, ENTIDAD_RES) %>%
+  summarise(n=n())  %>%
+  group_by() %>%
+  arrange(ENTIDAD_RES) 
+
+
+covid_fecha_corte <- bind_rows(covid_fecha_corte1, covid_fecha_corte2)
 
 # -------------------------------------------------------------------
 # NUMERO DE TESTS DIARIOS
@@ -66,7 +78,7 @@ tests_total %>%
   ggplot() +
   #geom_col(aes(FECHA_ACTUALIZACION, tests_diarios)) +
   geom_line(aes(FECHA_ACTUALIZACION, ma7/119530753 *1000), colour = "blue", size=1) +
-  geom_line(aes(FECHA_ACTUALIZACION, ma7/(119530753-8918653) *1000), colour = "red", size=1, data=tests_total_nocdmx) +
+  #geom_line(aes(FECHA_ACTUALIZACION, ma7/(119530753-8918653) *1000), colour = "red", size=1, data=tests_total_nocdmx) +
   theme_bw() +
   scale_fill_brewer(palette="Set1")+
   ggtitle("Tests diarios registrados en cada base")
@@ -76,13 +88,32 @@ tests_total %>%
 poblacion <- read_csv("poblacion_estados.csv") %>%
   mutate(CLAVE = str_pad(CLAVE, 2, pad = "0"))
 
+print(poblacion, n=40)
+
 tests %>%
   left_join(poblacion, by=c("ENTIDAD_RES" = "CLAVE")) %>%
-  filter(ENTIDAD_RES %in% c("09",  "15")) %>%
+  filter(ENTIDAD_RES %in% c("03","08","09", "10", "11", "15", "16", "19", "22", "32")) %>%
   ggplot() +
-  geom_line(aes(FECHA_ACTUALIZACION, ma7/POBLACION * 1000, colour=ENTIDAD_RES)) +
-  geom_line(aes(FECHA_ACTUALIZACION, ma7/119530753 *1000), colour = "blue", size=1, data=tests_total) + 
-geom_line(aes(FECHA_ACTUALIZACION, ma7/119530753 *1000), colour = "red", size=1, data=tests_total_nocdmx) 
+  geom_line(aes(FECHA_ACTUALIZACION, ma7/POBLACION * 1000, colour=ENTIDAD_RES)) 
+  #geom_line(aes(FECHA_ACTUALIZACION, ma7/119530753 *1000), colour = "blue", size=1, data=tests_total) + 
+  #geom_line(aes(FECHA_ACTUALIZACION, ma7/119530753 *1000), colour = "red", size=1, data=tests_total_nocdmx) 
+
+
+tests %>%
+  left_join(poblacion, by=c("ENTIDAD_RES" = "CLAVE")) %>%
+  filter(ENTIDAD_RES %in% c("02", "04", "05", "06", "07", "12", "13", "14", "17", "18", "20", "21", "23")) %>%
+  ggplot() +
+  geom_line(aes(FECHA_ACTUALIZACION, ma7/POBLACION * 1000, colour=ENTIDAD_RES)) 
+
+
+tests %>%
+  left_join(poblacion, by=c("ENTIDAD_RES" = "CLAVE")) %>%
+  filter(ENTIDAD_RES %in% c("32")) %>%
+  ggplot() +
+  geom_line(aes(FECHA_ACTUALIZACION, ma7/POBLACION * 1000, colour=ENTIDAD_RES)) 
+
+
+tests %>% filter(ENTIDAD_RES == "05") %>% print(n=200)
 
 
 tests %>%

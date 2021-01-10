@@ -6,10 +6,12 @@ covid202006 <- readRDS("datos/covid202006.rds")
 covid202007 <- readRDS("datos/covid202007.rds")
 covid202008 <- readRDS("datos/covid202008.rds")
 covid202009 <- readRDS("datos/covid202009.rds")
+covid202010 <- readRDS("datos/covid20201001-05.rds")
 
-covid <- bind_rows(covid202004, covid202005, covid202006, covid202007, covid202008, covid202009)
+covid <- bind_rows(covid202004, covid202005, covid202006, covid202007, covid202008, covid202009,covid202010)
 
-rm("covid202004", "covid202005", "covid202006", "covid202007", "covid202008", "covid202009")
+rm("covid202004", "covid202005", "covid202006", "covid202007", "covid202008", "covid202009", "covid202010")
+gc()
 
 # PREprocessing
 covid$MUERTO <- 0

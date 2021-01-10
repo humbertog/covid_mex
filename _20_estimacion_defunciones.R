@@ -6,12 +6,11 @@ library(RColorBrewer)
 source("_00_readData.R")
 
 
-
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-09-20")
-fecha_min_val <- as.Date("2020-08-23")
+fecha_max_val <- as.Date("2020-10-05")
+fecha_min_val <- as.Date("2020-10-01")
 
 
 fecha_min_fit <- as.Date("2020-04-12")
@@ -39,7 +38,7 @@ for (ii in 1:length(fechas_val)) {
     mutate(lag = as.integer(FECHA_REG - FECHA_DEF)) %>%
     group_by() 
 
-
+ 
 
   covid_def_lag_2 <- 
     covid_def_lag %>%
@@ -47,6 +46,8 @@ for (ii in 1:length(fechas_val)) {
     summarise(n=n()) %>%
     group_by()
 
+  rm("covid_def_lag")
+  gc()
 
   
   fb <- sort(unique(covid_def_lag_2$FECHA_DEF))

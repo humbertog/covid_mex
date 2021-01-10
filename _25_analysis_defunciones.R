@@ -12,8 +12,8 @@ library(RColorBrewer)
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
 
-fecha_max_val <- as.Date("2020-09-20")
-fecha_min_val <- as.Date("2020-05-15")
+fecha_max_val <- as.Date("2020-10-05")
+fecha_min_val <- as.Date("2020-10-01")
 
 fecha_min_fit <- as.Date("2020-04-12")
 
