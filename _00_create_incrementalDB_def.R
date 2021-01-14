@@ -57,18 +57,6 @@ add_death_incrementalDB <- function(folder, last_db=NULL) {
 
 covid_deaths <- add_death_incrementalDB("datos_csv/202101", last_db = "./datos/covid_def_incremental_2020-12-31.rds")
 
-# Checks:
-f <- vroom("datos_csv/202012/20201231.zip", na=c("9999-99-99"), col_types=cols(PAIS_ORIGEN=col_character(), FECHA_DEF=col_date())) 
-
-confirmed_deaths <- covid_deaths %>% filter(RESULTADO==1)
-
-# En la base diferencial hay mas casos que en la ultima base observada. Por que?
-# Una posible respuesta es que algunos casos pudieron haber sido 
-# reclasificados.
-confirmed_deaths %>% 
-  filter(!(ID_REGISTRO %in% c(f$ID_REGISTRO[f$CLASIFICACION_FINAL <= 3]))) %>% 
-  select(FECHA_ACTUALIZACION, ID_REGISTRO, ID_REGISTRO_RES, FECHA_DEF, RESULTADO, CLASIFICACION_FINAL) %>%
-  print(n=1000)
 
 
 
