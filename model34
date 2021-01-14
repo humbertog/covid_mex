@@ -1,0 +1,25 @@
+model{
+  for(i in 1:I) {
+    
+    Y[i, 1:J[i]] ~ dmulti(p[i, 1:J[i]],  N[i])
+    
+    N[i] ~ dpois(NN[i] * sum( p[i, 1:J[i]] ) )
+    
+    p[i,1:Jmax] ~ ddirch(a * g)
+  
+  }
+  
+  # PRIORS:
+  a[1:Jmax] ~ ddirch(alpha) 
+  g ~  dgamma(1.0E-3, 1.0E-3)
+  
+  for (ii in 1:I) {
+    NN[ii] ~  dgamma(1.0E-3, 1.0E-3)
+  }
+  
+  
+  
+
+
+  
+}
