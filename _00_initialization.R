@@ -8,20 +8,20 @@ library(vroom)
 mod <- "model34"
 # Runs the model for dates from fecha_min_val to fecha_max_val
 # To run maodel for only one date set fecha_min_val = fecha_max_val
-fecha_min_val <- as.Date("2021-01-14")
-fecha_max_val <- as.Date("2021-01-14")
-fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "7 day")
+fecha_min_val <- as.Date("2021-01-18")
+fecha_max_val <- as.Date("2021-01-19")
+fechas_val <- seq.Date(from=fecha_min_val, to=fecha_max_val, by = "1 day")
 
 
 # Reads data and selects only the confirmed COVID19 cases
-covid_def <- readRDS("datos/covid_def_incremental_2021-01-14.rds")
+covid_def <- readRDS("datos/covid_def_incremental_2021-01-19.rds")
 covid_def <- covid_def %>% filter(RESULTADO == 1)
 
 # Remove the IDs that do not appear on the last DB. The extra cases in our DB 
 # may be explained by reclassification or errors. We ASSUME that they are 
 # reclassification and thus we delete them so we have the same number of deaths 
 # reported by the authorities.
-last_db <- vroom("datos_csv/202101/20210114.zip", na=c("9999-99-99"), col_types=cols(PAIS_ORIGEN=col_character(), FECHA_DEF=col_date())) 
+last_db <- vroom("datos_csv/202101/20210119.zip", na=c("9999-99-99"), col_types=cols(PAIS_ORIGEN=col_character(), FECHA_DEF=col_date())) 
 last_db <- last_db %>% filter(CLASIFICACION_FINAL <= 3, FECHA_DEF >= "2020-03-01") 
 covid_def <- covid_def %>% filter(ID_REGISTRO %in% c(last_db$ID_REGISTRO[last_db$CLASIFICACION_FINAL <= 3]))
 gc()
@@ -44,3 +44,5 @@ covid_def_lag <-
 sem_min_fit <- 14
 
 covid_def_lag %>% distinct(FECHA_DEF, SEMANA_DEF) %>% arrange(FECHA_DEF) %>% print(n=1000)
+
+

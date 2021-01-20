@@ -55,7 +55,7 @@ add_death_incrementalDB <- function(folder, last_db=NULL) {
 # covid_deaths <- add_death_incrementalDB("datos_csv/202012", last_db = "./datos/covid_def_incremental_2020-11-30.rds")
 
 
-covid_deaths <- add_death_incrementalDB("datos_csv/new", last_db = "./datos/covid_def_incremental_2021-01-13.rds")
+covid_deaths <- add_death_incrementalDB("datos_csv/new", last_db = "./datos/covid_def_incremental_2021-01-17.rds")
 
 
 
