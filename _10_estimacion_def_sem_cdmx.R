@@ -7,7 +7,6 @@ library(vroom)
 
 source("_00_initialization.R")
 
-
 # Obtains the lags
 covid_def_lag <- 
   covid_def %>% 

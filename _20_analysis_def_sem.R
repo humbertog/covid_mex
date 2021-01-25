@@ -9,7 +9,6 @@ source("_00_initialization.R")
 
 
 
-
 for (ii in 1:length(fechas_val)) {
   maxfecha <- fechas_val[ii]
   wday <- wday(maxfecha, week_start=1)
@@ -63,20 +62,28 @@ for (ii in 1:length(fechas_val)) {
     mutate(faltantes = as.integer(faltantes)) 
   
     
+  def_semana_all <- 
+    def_semana_all %>%
+    left_join(semanas_date)
+    
   
   def_semana_all %>% print(n=100)
   
   # Plot estimated lagged deaths
   def_semana_all %>%
-    select(SEMANA_DEF, obs, faltantes) %>%
-    gather(key="tipo", value="n", -SEMANA_DEF) %>%
+    left_join(semanas_date) %>%
+    select(SEMANA_DEF, fecha, obs, faltantes) %>%
+    gather(key="tipo", value="n", -SEMANA_DEF, -fecha) %>%
     ggplot() +
-    geom_col(aes(SEMANA_DEF, n, fill=tipo), position="stack") +
-    geom_errorbar(aes(SEMANA_DEF, ymin= n_tot + n_pred_q25 - n_late, ymax=n_tot + n_pred_q975 - n_late, colour="black"), 
+    geom_col(aes(fecha, n, fill=tipo), position="stack", width=6.5) +
+    geom_errorbar(aes(fecha, ymin= n_tot + n_pred_q25 - n_late, ymax=n_tot + n_pred_q975 - n_late, colour="black"), 
                   data=def_semana_all, size=.1) +
     theme_bw() +
     scale_y_continuous("número de defunciones", breaks=seq(0,8000,1000), limits = c(0,8000)) +
-    scale_x_continuous("semana de defunción", breaks = seq(0, 70, 5), limits = c(1,70)) +
+    scale_x_date("fecha de defunción", breaks = seq(as.Date("2020-03-01"), as.Date("2021-06-30"), by="2 month"), 
+                       limits = c(as.Date("2020-03-01"), as.Date("2021-06-30")),
+                       date_labels =  "%m-%Y") +
+    #scale_x_date("semana de defunción", breaks = seq(0, 70, 5), limits = c(1,70)) +
     scale_fill_manual(name = "",  values=c("red", "grey10"), labels = c("predicciones", "observados")) +
     scale_color_manual(name = "", values=c("black"), labels = c("int. de probabilidad de 95%")) +
     ggtitle(paste("Número de muertes confirmadas por COVID-19 corregidas por el retraso en su registro", sep=""),
@@ -89,8 +96,8 @@ for (ii in 1:length(fechas_val)) {
           legend.text = element_text(size = 10),
           plot.title = element_text(size=13),
           plot.subtitle = element_text(size=9)
-    )  +
-  ggsave(paste("reportes_def/", mod,"_sem/def/lag_sem_",maxfecha,".png", sep=""),  width = 220, height = 220 * 2/3, units = "mm")
+    ) + 
+    ggsave(paste("reportes_def/", mod,"_sem/def/lag_sem_",maxfecha,".png", sep=""),  width = 220, height = 220 * 2/3, units = "mm")
   
   
   #------------------------------------------------------------------------------ 
@@ -113,12 +120,15 @@ for (ii in 1:length(fechas_val)) {
     def_semana_all_cum %>%
     #gather(key="tipo", value="n", -SEMANA_DEF) %>%
     ggplot() +
-    geom_ribbon(aes(SEMANA_DEF, ymin=pred_cum_q25, ymax=pred_cum_q975), alpha=.3) +
-    geom_line(aes(SEMANA_DEF, obs_cum), colour="black") +
-    geom_line(aes(SEMANA_DEF, pred_cum), colour="red") +
+    geom_ribbon(aes(fecha, ymin=pred_cum_q25, ymax=pred_cum_q975), alpha=.3) +
+    geom_line(aes(fecha, obs_cum), colour="black") +
+    geom_line(aes(fecha, pred_cum), colour="red") +
     theme_bw() +
     scale_y_continuous("número de defunciones", breaks=seq(0,180000,10000), limits = c(0,180000)) +
-    scale_x_continuous("semana de defunción", breaks = seq(0, 70, 4), limits = c(1,70)) +
+    scale_x_date("fecha de defunción", breaks = seq(as.Date("2020-03-01"), as.Date("2021-06-30"), by="2 month"), 
+                 limits = c(as.Date("2020-03-01"), as.Date("2021-06-30")),
+                 date_labels =  "%m-%Y") +
+    #scale_x_continuous("semana de defunción", breaks = seq(0, 70, 4), limits = c(1,70)) +
     scale_fill_manual(name = "",  values=c("red", "grey10"), labels = c("predicciones", "observados")) +
     scale_color_manual(name = "", values=c("black"), labels = c("int. de probabilidad de 95%")) +
     ggtitle(paste("Número acumulado de muertes por COVID-19 corregidas por el retraso en su registro", sep=""),
@@ -134,10 +144,10 @@ for (ii in 1:length(fechas_val)) {
     ) 
   
   
-  max_x <- max(def_semana_all_cum$SEMANA_DEF) + 1
-  min_x <- max(def_semana_all_cum$SEMANA_DEF) - 10
+  max_x <- max(def_semana_all_cum$fecha) + 7
+  min_x <- max(def_semana_all_cum$fecha) - 35
   
-  min_y <- def_semana_all_cum$pred_cum_q25[def_semana_all_cum$SEMANA_DEF == min_x]
+  min_y <- def_semana_all_cum$pred_cum_q25[def_semana_all_cum$fecha == min_x]
   min_y <- floor(min_y / 1000) * 1000 
   max_y <- ceiling(max(def_semana_all_cum$pred_cum_q975, na.rm=TRUE) / 1000) * 1000 + 5000
   
@@ -145,7 +155,10 @@ for (ii in 1:length(fechas_val)) {
     plot_deaths_cum + 
       theme_bw() +
       scale_y_continuous("número de defunciones", breaks=seq(0,max_y,10000), limits = c(min_y,max_y)) +
-      scale_x_continuous("semana de defunción", breaks = seq(0, 70, 4), limits = c(min_x,max_x)) +
+      scale_x_date("fecha de defunción", breaks = seq(as.Date("2020-03-01"), as.Date("2021-06-30"), by="1 week"), 
+                 limits = c(min_x, max_x),
+                 date_labels =  "%d-%m-%Y") +
+      #scale_x_continuous("fecha de defunción", breaks = seq(0, 70, 4), limits = c(min_x,max_x)) +
       theme(legend.position = "",
             axis.title=element_blank(),
             axis.text = element_text(size=6),
