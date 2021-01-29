@@ -79,7 +79,7 @@ for (ii in 1:length(fechas_val)) {
     geom_errorbar(aes(fecha, ymin= n_tot + n_pred_q25 - n_late, ymax=n_tot + n_pred_q975 - n_late, colour="black"), 
                   data=def_semana_all, size=.1) +
     theme_bw() +
-    scale_y_continuous("número de defunciones", breaks=seq(0,8000,1000), limits = c(0,8000)) +
+    scale_y_continuous("número de defunciones", breaks=seq(0,10000,1000), limits = c(0,10000)) +
     scale_x_date("fecha de defunción", breaks = seq(as.Date("2020-03-01"), as.Date("2021-06-30"), by="2 month"), 
                        limits = c(as.Date("2020-03-01"), as.Date("2021-06-30")),
                        date_labels =  "%m-%Y") +
