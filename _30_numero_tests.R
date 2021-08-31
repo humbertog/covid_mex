@@ -46,7 +46,7 @@ test %>%
 
 test_nacional <- 
   test %>% 
-  #filter(CLASIFICACION_FINAL %in% c(3,7)) %>%
+  filter(CLASIFICACION_FINAL %in% c(3,7)) %>%
   group_by(FECHA_ACTUALIZACION) %>%
   summarise(n=sum(n)) %>%
   mutate(diff = n - lag(n, default = 0)) %>%
@@ -55,7 +55,7 @@ test_nacional <-
 
 test_nacional_pos <- 
   test %>% 
-  filter(CLASIFICACION_FINAL %in% c(1,2,3)) %>%
+  filter(CLASIFICACION_FINAL %in% c(3)) %>%
   group_by(FECHA_ACTUALIZACION) %>%
   summarise(n=sum(n)) %>%
   mutate(diff = n - lag(n, default = 0)) %>%
